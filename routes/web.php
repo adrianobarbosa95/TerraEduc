@@ -31,7 +31,7 @@ Route::resource('students', StudentController::class);
 Route::resource('classrooms', ClassRoomController::class);
 Route::resource('disciplines', DisciplineController::class);
 Route::resource('grades', GradeController::class);
-
+  
 });
 
 
