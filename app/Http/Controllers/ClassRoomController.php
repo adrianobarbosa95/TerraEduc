@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ClassRoom;
 use Illuminate\Http\Request;
+use Termwind\Components\Dd;
 
 class ClassRoomController extends Controller
 {
@@ -36,6 +37,7 @@ public function store(Request $request)
         'name' => $name,
         'modality' => $request->modality,
         'year' => $request->year,
+        'period' => $request->period,
         'units' => $units
     ]);
 
@@ -66,18 +68,30 @@ public function store(Request $request)
     $classroom = ClassRoom::findOrFail($id);
 
     $classroom->update([
+        'year' => $request->year,
         'name' => $request->name,
+        'modality' => $request->modality,
+        
+        'period' => $request->period,
         'units' => $request->units,
     ]);
 
-    return response()->json(['success' => true]);
+    return response()->json(['success' => "sucesso"]);
 }
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(ClassRoom $classRoom)
-    {
-        //
-    }
+{
+  
+    
+$classRoom->delete();
+
+   
+    
+     
+
+    return response()->json(['sucess' => $classRoom->id]);
+}
 }

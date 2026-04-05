@@ -28,6 +28,6 @@ $table->string('period')->nullable();
      */
     public function down(): void
     {
-        Schema::dropIfExists('class_rooms');
+        Schema::dropIfExists('classrooms');
     }
 };

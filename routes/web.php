@@ -28,9 +28,12 @@ Route::middleware('auth')->group(function () {
 
 
 Route::resource('students', StudentController::class);
+Route::delete('classrooms/{classRoom}', [ClassRoomController::class, 'destroy']);
+Route::put('classrooms/{classRoom}', [ClassRoomController::class, 'update']);
 Route::resource('classrooms', ClassRoomController::class);
 Route::resource('disciplines', DisciplineController::class);
 Route::resource('grades', GradeController::class);
+
   
 });
 
