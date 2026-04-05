@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TerraEduc</title>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
@@ -129,14 +129,37 @@
         </div>
 
      
-    <a href="{{ url('/home') }}" class="active">🏠 Início</a>
-    <a href="#">👨‍🎓 Alunos</a>
-    <a href="#">🏫 Turmas</a>
-    <a href="#">📚 Disciplinas</a>
-    <a href="#">📝 Notas</a>
-    <a href="#">📊 Relatório</a>
-    <a href="#">🕒 Horário</a>
-    <a href="#">⚙️ Configuração</a>
+    <a href="{{ url('/home') }}" class="{{ request()->is('home') ? 'active' : '' }}">
+    🏠 Início
+</a>
+
+<a href="{{ route('students.index') }}" class="{{ request()->routeIs('students.*') ? 'active' : '' }}">
+    👨‍🎓 Alunos
+</a>
+
+<a href="{{ route('classrooms.index') }}" class="{{ request()->routeIs('classrooms.*') ? 'active' : '' }}">
+    🏫 Turmas
+</a>
+
+<a href="{{ route('disciplines.index') }}" class="{{ request()->routeIs('disciplines.*') ? 'active' : '' }}">
+    📚 Disciplinas
+</a>
+
+<a href="{{ route('grades.index') }}" class="{{ request()->routeIs('grades.*') ? 'active' : '' }}">
+    📝 Notas
+</a>
+
+<a href="#" class="">
+    📊 Relatório
+</a>
+
+<a href="#" class="">
+    🕒 Horário
+</a>
+
+<a href="#" class="">
+    ⚙️ Configuração
+</a>
     </div>
 
     <!-- TOPBAR -->

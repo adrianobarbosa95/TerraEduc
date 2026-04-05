@@ -11,10 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('class_rooms', function (Blueprint $table) {
+        Schema::create('classrooms', function (Blueprint $table) {
            $table->id();
-    $table->string('name');
-    $table->integer('units'); // quantidade de unidades (ex: 3, 4, etc)
+          $table->string('name'); // nome completo
+$table->string('modality'); // PROEJA, SUBSEQUENTE, PROEI, INTEGRADO
+$table->integer('year'); // ano letivo
+$table->integer('units'); // 2 ou 3
+$table->string('period')->nullable(); 
+// ex: "M1", "M2" para semestral
     $table->timestamps();
         });
     }

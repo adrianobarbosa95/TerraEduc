@@ -17,26 +17,30 @@ class ClassRoomController extends Controller
     {
         return view('classrooms.create');
     }
+public function store(Request $request)
+{
+    $request->validate([
+        'modality' => 'required',
+        'year' => 'required|integer'
+    ]);
 
-    public function store(Request $request)
-    {
-        ClassRoom::create($request->all());
-        return redirect()->route('classrooms.index');
+    $units = 2;
+
+    if (in_array($request->modality, ['PROEI', 'INTEGRADO'])) {
+        $units = 3;
     }
-/**
-     * Display a listing of the resource.
-     */
-     
 
-    /**
-     * Show the form for creating a new resource.
-     */
-     
+    $name = $request->name;
 
-    /**
-     * Store a newly created resource in storage.
-     */
-     
+    ClassRoom::create([
+        'name' => $name,
+        'modality' => $request->modality,
+        'year' => $request->year,
+        'units' => $units
+    ]);
+
+    return response()->json(['success' => true]);
+}
 
     /**
      * Display the specified resource.
@@ -57,10 +61,17 @@ class ClassRoomController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, ClassRoom $classRoom)
-    {
-        //
-    }
+   public function update(Request $request, $id)
+{
+    $classroom = ClassRoom::findOrFail($id);
+
+    $classroom->update([
+        'name' => $request->name,
+        'units' => $request->units,
+    ]);
+
+    return response()->json(['success' => true]);
+}
 
     /**
      * Remove the specified resource from storage.

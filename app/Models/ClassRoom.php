@@ -6,10 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class ClassRoom extends Model
 {
-    protected $fillable = [
-        'name',
-        'units'
-    ];
+    protected $table = 'classrooms'; 
+protected $fillable = [
+    'name',
+    'units',
+    'modality',
+    'year',
+    'period'
+];
 
     public function students()
     {

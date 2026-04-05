@@ -10,7 +10,7 @@
 
         <!-- Alunos -->
         <div class="col-md-3">
-            <a href="#" class="text-decoration-none">
+            <a href="{{route("students.index")}}" class="text-decoration-none">
                 <div class="card shadow-sm h-100">
                     <div class="card-body text-center">
                         <div style="font-size: 30px;">👨‍🎓</div>
@@ -23,7 +23,7 @@
 
         <!-- Turmas -->
         <div class="col-md-3">
-            <a href="#" class="text-decoration-none">
+            <a href="{{route("classrooms.index")}}" class="text-decoration-none">
                 <div class="card shadow-sm h-100">
                     <div class="card-body text-center">
                         <div style="font-size: 30px;">🏫</div>
@@ -36,12 +36,12 @@
 
         <!-- Professores -->
         <div class="col-md-3">
-            <a href="#" class="text-decoration-none">
+            <a href="{{route("profile.edit")}}" class="text-decoration-none">
                 <div class="card shadow-sm h-100">
                     <div class="card-body text-center">
                         <div style="font-size: 30px;">👩‍🏫</div>
-                        <h5 class="card-title mt-2">Professores</h5>
-                        <p class="text-muted small">Gestão docente</p>
+                        <h5 class="card-title mt-2">Perfil</h5>
+                        <p class="text-muted small">Gestão do Perfil</p>
                     </div>
                 </div>
             </a>
@@ -49,7 +49,7 @@
 
         <!-- Disciplinas -->
         <div class="col-md-3">
-            <a href="#" class="text-decoration-none">
+            <a href="{{route("disciplines.index")}}" class="text-decoration-none">
                 <div class="card shadow-sm h-100">
                     <div class="card-body text-center">
                         <div style="font-size: 30px;">📚</div>
@@ -62,7 +62,7 @@
 
         <!-- Notas -->
         <div class="col-md-3">
-            <a href="#" class="text-decoration-none">
+            <a href="{{route("grades.index")}}" class="text-decoration-none">
                 <div class="card shadow-sm h-100">
                     <div class="card-body text-center">
                         <div style="font-size: 30px;">🧾</div>
