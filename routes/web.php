@@ -33,7 +33,8 @@ Route::put('classrooms/{classRoom}', [ClassRoomController::class, 'update']);
 Route::resource('classrooms', ClassRoomController::class);
 Route::resource('disciplines', DisciplineController::class);
 Route::resource('grades', GradeController::class);
-
+Route::post('/students/import', [StudentController::class, 'import'])
+    ->name('students.import');
   
 });
 

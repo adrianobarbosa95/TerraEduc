@@ -5,14 +5,35 @@ namespace App\Http\Controllers;
 use App\Models\ClassRoom;
 use App\Models\Student;
 use Illuminate\Http\Request;
+// use Maatwebsite\Excel\Facades\Excel;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class StudentController extends Controller
 {
-    public function index()
-    {
-        $students = Student::with('classroom')->get();
-        return view('students.index', compact('students'));
+   public function index(Request $request)
+{
+    $classrooms = ClassRoom::all();
+
+    $query = Student::with('classroom');
+
+    // 🔎 filtro por turma
+    if ($request->classroom_id) {
+        $query->where('classroom_id', $request->classroom_id);
     }
+
+    // 🔎 busca por nome ou matrícula
+    if ($request->search) {
+        $query->where(function ($q) use ($request) {
+            $q->where('name', 'like', "%{$request->search}%")
+              ->orWhere('registration', 'like', "%{$request->search}%");
+        });
+    }
+
+    // 🔥 ESSENCIAL (evita travar)
+    $students = $query->paginate(10);
+
+    return view('students.index', compact('students', 'classrooms'));
+}
 
     public function create()
     {
@@ -31,9 +52,54 @@ class StudentController extends Controller
 
         return redirect()->route('students.index');
     }
-    /**
-     * Display a listing of the resource.
-     */
+
+   
+public function import(Request $request)
+{
+    try {
+
+        $file = $request->file('file');
+        $html = file_get_contents($file->getPathname());
+
+        libxml_use_internal_errors(true);
+
+        $dom = new \DOMDocument();
+        $dom->loadHTML($html);
+
+        $rows = $dom->getElementsByTagName('tr');
+
+        foreach ($rows as $row) {
+
+            $cols = $row->getElementsByTagName('td');
+
+            if ($cols->length < 3) continue;
+
+            $registration = trim($cols->item(1)->nodeValue);
+            $name = trim($cols->item(2)->nodeValue);
+
+            // ignora cabeçalho
+            if ($registration == 'Matrícula') continue;
+
+           
+ 
+// pega o primeiro nome
+$firstName = explode(' ', $name)[0];
+ 
+Student::create([
+    'name' => $name,
+    'registration' => $registration,
+    'password' => bcrypt($firstName), // 👈 aqui
+    'classroom_id' => $request->classroom_id
+]);
+        }
+
+        return back()->with('success', 'Alunos importados!');
+
+    } catch (\Exception $e) {
+
+        return back()->with('error', $e->getMessage());
+    }
+}
     
 
     /**
