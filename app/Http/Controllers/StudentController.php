@@ -131,16 +131,27 @@ Student::create([
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Student $student)
+   // ================= UPDATE (AJAX) =================
+    public function update(Request $request, $id)
     {
-        //
+        $student = Student::findOrFail($id);
+        $firstName = explode(' ', trim($request->name))[0];
+ 
+        $student->update([
+            'name' => $request->name,
+            'registration' => $request->registration,
+            'password' =>  bcrypt($firstName),
+        ]);
+
+        return response()->json(['success' => true]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Student $student)
+    // ================= DELETE (AJAX) =================
+    public function destroy($id)
     {
-        //
+        $student = Student::findOrFail($id);
+        $student->delete();
+
+        return response()->json(['success' => true]);
     }
 }
