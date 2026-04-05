@@ -17,43 +17,44 @@
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
                         <thead class="table-light">
-                            <tr>
-                                <th>Nome</th>
-                                <th>Modalidade</th>
-                                <th>Ano</th>
+    <tr>
+        <th>Nome</th>
+        <th>Modalidade</th>
+        <th>Ano</th>
+        <th>Período</th>
+        <th>Qtd. Alunos</th> {{-- NOVO --}}
+        <th class="text-end">Ações</th>
+    </tr>
+</thead>
 
-                                <th>Período</th>
+<tbody>
+    @foreach ($classrooms as $classroom)
+        <tr>
+            <td class="fw-medium">{{ $classroom->name }}</td>
+            <td>{{ $classroom->modality }}</td>
+            <td>{{ $classroom->year }}</td>
+            <td>{{ $classroom->period ?? '-' }}</td>
 
-                                <th class="text-end">Ações</th>
-                            </tr>
-                        </thead>
+            <td>
+                <span class="badge bg-primary">
+                    {{ $classroom->students_count }}
+                </span>
+            </td>
 
-                        <tbody>
-                            @foreach ($classrooms as $classroom)
-                                <tr>
-                                    <td class="fw-medium">{{ $classroom->name }}</td>
-                                    <td>{{ $classroom->modality }}</td>
-                                    <td>{{ $classroom->year }}</td>
+            <td class="text-end">
+                <button class="btn btn-sm btn-outline-primary me-1"
+                    onclick='openEditModal(@json($classroom))'>
+                    ✏️
+                </button>
 
-                                    <td>{{ $classroom->period ?? '-' }}</td>
-
-
-                                    <td class="text-end">
-
-                                        <button class="btn btn-sm btn-outline-primary me-1"
-                                            onclick='openEditModal(@json($classroom))'>
-                                            ✏️
-                                        </button>
-
-                                        <button class="btn btn-sm btn-outline-danger"
-                                            onclick="deleteClassroom({{ $classroom->id }})">
-                                            🗑️
-                                        </button>
-
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
+                <button class="btn btn-sm btn-outline-danger"
+                    onclick="deleteClassroom({{ $classroom->id }})">
+                    🗑️
+                </button>
+            </td>
+        </tr>
+    @endforeach
+</tbody>
 
                     </table>
                 </div>

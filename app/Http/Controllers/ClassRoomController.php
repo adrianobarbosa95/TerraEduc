@@ -4,13 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\ClassRoom;
 use Illuminate\Http\Request;
-use Termwind\Components\Dd;
+ 
 
 class ClassRoomController extends Controller
 {
    public function index()
     {
-        $classrooms = ClassRoom::all();
+       $classrooms = ClassRoom::withCount('students')->get();
         return view('classrooms.index', compact('classrooms'));
     }
 

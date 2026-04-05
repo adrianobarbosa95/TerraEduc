@@ -15,11 +15,11 @@ protected $fillable = [
     'period'
 ];
 
-    public function students()
-    {
-        return $this->hasMany(Student::class);
-    }
-
+    
+public function students()
+{
+    return $this->hasMany(Student::class, 'classroom_id'); // 👈 aqui
+}
     public function disciplines()
     {
         return $this->belongsToMany(Discipline::class, 'class_discipline');
