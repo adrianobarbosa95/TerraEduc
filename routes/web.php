@@ -1,11 +1,13 @@
 <?php
 
+use App\Http\Controllers\EvaluationController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\ClassRoomController;
 use App\Http\Controllers\DisciplineController;
 use App\Http\Controllers\GradeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StudentController;
+
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -25,8 +27,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/home', function () {
     return view('home.index');
 })->name('home');
-
-
+Route::get('/classrooms/{id}/data', [EvaluationController::class, 'getClassroomData']);
+Route::resource('evaluations', EvaluationController::class);
 Route::resource('students', StudentController::class);
 Route::delete('classrooms/{classRoom}', [ClassRoomController::class, 'destroy']);
 Route::put('classrooms/{classRoom}', [ClassRoomController::class, 'update']);
@@ -35,6 +37,7 @@ Route::resource('disciplines', DisciplineController::class);
 Route::resource('grades', GradeController::class);
 Route::post('/students/import', [StudentController::class, 'import'])
     ->name('students.import');
+
   
 });
 

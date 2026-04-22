@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('disciplines', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->integer('evaluations_per_unit')->default(3);
+           
             $table->timestamps();
         });
     }

@@ -65,7 +65,7 @@
             <a href="{{route("grades.index")}}" class="text-decoration-none">
                 <div class="card shadow-sm h-100">
                     <div class="card-body text-center">
-                        <div style="font-size: 30px;">🧾</div>
+                        <div style="font-size: 30px;">📈</div>
                         <h5 class="card-title mt-2">Notas</h5>
                         <p class="text-muted small">Lançamento de notas</p>
                     </div>

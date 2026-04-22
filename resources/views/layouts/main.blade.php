@@ -145,8 +145,13 @@
     📚 Disciplinas
 </a>
 
+<a href="{{ route('evaluations.index') }}" class="{{ request()->routeIs('evaluations.*') ? 'active' : '' }}">
+    📝 Avaliações
+</a>
+
+
 <a href="{{ route('grades.index') }}" class="{{ request()->routeIs('grades.*') ? 'active' : '' }}">
-    📝 Notas
+    📈 Notas
 </a>
 
 <a href="#" class="">

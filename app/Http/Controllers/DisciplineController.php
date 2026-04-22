@@ -3,69 +3,145 @@
 namespace App\Http\Controllers;
 
 use App\Models\Discipline;
+use App\Models\ClassRoom;
+use App\Models\EvaluationRule;
 use Illuminate\Http\Request;
 
 class DisciplineController extends Controller
 {
-   public function index()
+    /**
+     * LISTAR
+     */
+    public function index()
     {
-        $disciplines = Discipline::all();
+        $disciplines = Discipline::with(['evaluationRules.classroom'])->get();
+
         return view('disciplines.index', compact('disciplines'));
     }
 
+    /**
+     * FORM CREATE
+     */
     public function create()
     {
-        return view('disciplines.create');
-    }
+        $classrooms = ClassRoom::all();
 
-    public function store(Request $request)
-    {
-        Discipline::create($request->all());
-        return redirect()->route('disciplines.index');
-    }
-     /**
-     * Display a listing of the resource.
-     */
-     
-
-    /**
-     * Show the form for creating a new resource.
-     */
-     
-    /**
-     * Store a newly created resource in storage.
-     */
-     
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Discipline $discipline)
-    {
-        //
+        return view('disciplines.create', compact('classrooms'));
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * SALVAR
      */
-    public function edit(Discipline $discipline)
-    {
-        //
+ public function store(Request $request)
+{
+    $request->validate([
+        'name' => 'required',
+        'classrooms' => 'nullable|array'
+    ]);
+
+    $discipline = Discipline::create([
+        'name' => $request->name
+    ]);
+
+    $classroomIds = $request->classrooms ?? [];
+
+    // 🔥 SALVA RELACIONAMENTO CORRETO
+    if (!empty($classroomIds)) {
+        $discipline->classrooms()->sync($classroomIds);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Discipline $discipline)
-    {
-        //
+    // 🔥 SALVA REGRAS SOMENTE DAS MARCADAS
+    if ($request->rules) {
+
+        foreach ($request->rules as $classroomId => $units) {
+
+            // 👇 IGNORA TURMAS NÃO MARCADAS
+            if (!in_array($classroomId, $classroomIds)) {
+                continue;
+            }
+
+            foreach ($units as $unit => $quantity) {
+
+                if (!$quantity) continue;
+
+                EvaluationRule::create([
+                    'classroom_id' => $classroomId,
+                    'discipline_id' => $discipline->id,
+                    'unit' => $unit,
+                    'quantity' => $quantity
+                ]);
+            }
+        }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Discipline $discipline)
-    {
-        //
-    }
+    return redirect()->route('disciplines.index')
+        ->with('success', 'Disciplina criada com sucesso!');
 }
+    /**
+     * EDIT
+     */
+    public function edit($id)
+    {
+        $discipline = Discipline::with('evaluationRules')->findOrFail($id);
+        $classrooms = ClassRoom::all();
+
+        return view('disciplines.edit', compact('discipline', 'classrooms'));
+    }
+
+    /**
+     * UPDATE
+     */
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required'
+        ]);
+
+        $discipline = Discipline::findOrFail($id);
+
+        // atualiza nome
+        $discipline->update([
+            'name' => $request->name
+        ]);
+
+        // remove regras antigas
+        EvaluationRule::where('discipline_id', $discipline->id)->delete();
+
+        // recria regras
+        if ($request->rules) {
+
+            foreach ($request->rules as $classroomId => $units) {
+
+                foreach ($units as $unit => $quantity) {
+
+                    if (!$quantity) continue;
+
+                    EvaluationRule::create([
+                        'classroom_id' => $classroomId,
+                        'discipline_id' => $discipline->id,
+                        'unit' => $unit,
+                        'quantity' => $quantity
+                    ]);
+                }
+            }
+        }
+
+        return redirect()->route('disciplines.index')
+            ->with('success', 'Disciplina atualizada!');
+    }
+
+    /**
+     * DELETE
+     */
+    public function destroy($id)
+    {
+        $discipline = Discipline::findOrFail($id);
+
+        // remove regras primeiro
+        EvaluationRule::where('discipline_id', $id)->delete();
+
+        $discipline->delete();
+
+        return response()->json(['success' => true]);
+    }
+}  
