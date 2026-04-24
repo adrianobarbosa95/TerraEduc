@@ -179,5 +179,36 @@ addEvaluation();
 addEvaluation();
 
 </script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+@if(session('success'))
+<script>
+    Swal.fire({
+        icon: 'success',
+        title: 'Sucesso!',
+        text: "{{ session('success') }}"
+    });
+</script>
+@endif
+
+@if(session('error'))
+<script>
+    Swal.fire({
+        icon: 'error',
+        title: 'Erro!',
+        text: "{{ session('error') }}"
+    });
+</script>
+@endif
+
+@if ($errors->any())
+<script>
+    Swal.fire({
+        icon: 'error',
+        title: 'Erro de validação',
+        html: `{!! implode('<br>', $errors->all()) !!}`
+    });
+</script>
+
+@endif
 @endsection

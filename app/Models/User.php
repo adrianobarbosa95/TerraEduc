@@ -33,7 +33,10 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
-
+public function disciplines()
+{
+    return $this->hasMany(Discipline::class);
+}
     /**
      * Get the attributes that should be cast.
      *

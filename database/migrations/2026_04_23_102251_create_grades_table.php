@@ -14,11 +14,10 @@ return new class extends Migration
         Schema::create('grades', function (Blueprint $table) {
             $table->id();
             $table->foreignId('student_id')->constrained()->onDelete('cascade');
-            $table->foreignId('discipline_id')->constrained()->onDelete('cascade');
-            $table->integer('unit');        // unidade (1,2,3...)
-            $table->integer('evaluation');  // avaliação dentro da unidade
+          
+          $table->unique(['student_id', 'evaluation_id']);
             $table->float('value');         // nota
-
+$table->foreignId('evaluation_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }

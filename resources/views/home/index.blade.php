@@ -62,7 +62,7 @@
 
         <!-- Notas -->
         <div class="col-md-3">
-            <a href="{{route("grades.index")}}" class="text-decoration-none">
+            <a href="{{route("grades.create")}}" class="text-decoration-none">
                 <div class="card shadow-sm h-100">
                     <div class="card-body text-center">
                         <div style="font-size: 30px;">📈</div>
@@ -75,7 +75,7 @@
 
         <!-- Horários -->
         <div class="col-md-3">
-            <a href="#" class="text-decoration-none">
+            <a href="{{route("schedules.index")}}" class="text-decoration-none">
                 <div class="card shadow-sm h-100">
                     <div class="card-body text-center">
                         <div style="font-size: 30px;">⏰</div>

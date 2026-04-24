@@ -150,7 +150,7 @@
 </a>
 
 
-<a href="{{ route('grades.index') }}" class="{{ request()->routeIs('grades.*') ? 'active' : '' }}">
+<a href="{{ route('grades.create') }}" class="{{ request()->routeIs('grades.*') ? 'active' : '' }}">
     📈 Notas
 </a>
 
@@ -158,7 +158,7 @@
     📊 Relatório
 </a>
 
-<a href="#" class="">
+<a href="{{ route('schedules.index') }}" class="{{ request()->routeIs('schedules.*') ? 'active' : '' }}">
     🕒 Horário
 </a>
 

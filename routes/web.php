@@ -6,8 +6,10 @@ use App\Http\Controllers\ClassRoomController;
 use App\Http\Controllers\DisciplineController;
 use App\Http\Controllers\GradeController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\StudentController;
-
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -27,6 +29,24 @@ Route::middleware('auth')->group(function () {
         Route::get('/home', function () {
     return view('home.index');
 })->name('home');
+ 
+Route::get('/grades/data', [App\Http\Controllers\GradeController::class, 'getData']);
+ 
+
+Route::get('/schedule', [ScheduleController::class, 'index'])
+    ->name('schedules.index')
+    ->middleware('auth');
+ 
+
+Route::post('/check-password', function (\Illuminate\Http\Request $request) {
+
+    $user = Auth::user();
+
+    return response()->json([
+        'valid' => Hash::check($request->password, $user->password)
+    ]);
+})->name('check.password');
+Route::get('/classrooms/{id}/disciplines', [GradeController::class, 'getDisciplines']);
 Route::get('/classrooms/{id}/data', [EvaluationController::class, 'getClassroomData']);
 Route::resource('evaluations', EvaluationController::class);
 Route::resource('students', StudentController::class);
@@ -38,7 +58,6 @@ Route::resource('grades', GradeController::class);
 Route::post('/students/import', [StudentController::class, 'import'])
     ->name('students.import');
 
-  
 });
 
 

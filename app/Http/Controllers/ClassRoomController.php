@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ClassRoom;
 use Illuminate\Http\Request;
- 
+use Illuminate\Support\Facades\Auth;
 
 class ClassRoomController extends Controller
 {
@@ -13,7 +13,16 @@ class ClassRoomController extends Controller
        $classrooms = ClassRoom::withCount('students')->get();
         return view('classrooms.index', compact('classrooms'));
     }
+public function getDisciplines($id)
+{
+    $classroom = ClassRoom::findOrFail($id);
 
+    $disciplines = $classroom->disciplines()
+        ->where('user_id', Auth::id()) // 🔥 FILTRO
+        ->get();
+
+    return response()->json($disciplines);
+}
     public function create()
     {
         return view('classrooms.create');

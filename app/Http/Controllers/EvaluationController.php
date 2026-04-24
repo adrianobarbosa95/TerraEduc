@@ -5,7 +5,8 @@ use App\Models\Evaluation;
 use App\Models\ClassRoom;
 use App\Models\Discipline;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 class EvaluationController extends Controller
 {
     public function index()
@@ -20,28 +21,32 @@ class EvaluationController extends Controller
     public function create()
     {
         $classrooms = ClassRoom::all();
-        $disciplines = Discipline::all();
+       $disciplines = Discipline::where('user_id', Auth::id())->get();
 
-        return view('evaluations.create', compact('classrooms', 'disciplines'));
+        return view('evaluations.index', compact('classrooms', 'disciplines'));
     }
 
     public function store(Request $request)
 {
-    // valida estrutura básica
     $request->validate([
         'classroom_id' => 'required|exists:classrooms,id',
         'discipline_id' => 'required|exists:disciplines,id',
         'unit' => 'required|integer|min:1',
         'evaluations' => 'required|array|min:3',
     ]);
+$discipline = Discipline::where('id', $request->discipline_id)
+    ->where('user_id', Auth::id())
+    ->first();
 
+if (!$discipline) {
+    return back()->with('error', 'Disciplina inválida.');
+}
     $evaluations = $request->evaluations;
 
     $total = 0;
 
     foreach ($evaluations as $index => $evaluation) {
 
-        // valida cada avaliação
         if (empty($evaluation['name']) || !isset($evaluation['value'])) {
             return back()->with('error', "Preencha todos os campos da avaliação #" . ($index + 1));
         }
@@ -53,17 +58,16 @@ class EvaluationController extends Controller
         $total += floatval($evaluation['value']);
     }
 
-    // 🔥 REGRA PRINCIPAL
+    // 🔥 REGRAS
     if (count($evaluations) < 3) {
         return back()->with('error', 'É obrigatório no mínimo 3 avaliações.');
     }
 
     if ($total != 10) {
-        return back()->with('error', "A soma das avaliações deve ser exatamente 10. Atual: $total");
+        return back()->with('error', "A soma deve ser exatamente 10. Atual: $total");
     }
 
-    // 🚨 OPCIONAL (MAS MUITO IMPORTANTE)
-    // impedir duplicidade na mesma turma/disciplina/unidade
+    // 🚫 BLOQUEIO DE DUPLICIDADE
     $exists = \App\Models\Evaluation::where([
         'classroom_id' => $request->classroom_id,
         'discipline_id' => $request->discipline_id,
@@ -71,25 +75,38 @@ class EvaluationController extends Controller
     ])->exists();
 
     if ($exists) {
-        return back()->with('error', 'Já existem avaliações cadastradas para essa turma/disciplina/unidade.');
+        return back()->with('error', 'Já existe avaliação cadastrada para essa unidade.');
     }
 
-    // salvar
-    foreach ($evaluations as $evaluation) {
+    // 🔥 TRANSAÇÃO (ESSENCIAL)
+    DB::beginTransaction();
 
-        \App\Models\Evaluation::create([
-            'classroom_id' => $request->classroom_id,
-            'discipline_id' => $request->discipline_id,
-            'unit' => $request->unit,
-            'name' => $evaluation['name'],
-            'description' => $evaluation['description'] ?? null,
-            'date' => $evaluation['date'] ?? null,
-            'value' => $evaluation['value']
-        ]);
+    try {
+
+        foreach ($evaluations as $evaluation) {
+
+            \App\Models\Evaluation::create([
+                'classroom_id' => $request->classroom_id,
+                'discipline_id' => $request->discipline_id,
+                'unit' => $request->unit,
+                'name' => $evaluation['name'],
+                'description' => $evaluation['description'] ?? null,
+                'date' => $evaluation['date'] ?? null,
+                'value' => $evaluation['value']
+            ]);
+        }
+
+        DB::commit();
+
+        return redirect()->route('evaluations.index')
+            ->with('success', 'Avaliações cadastradas com sucesso!');
+
+    } catch (\Exception $e) {
+
+        DB::rollBack();
+
+        return back()->with('error', 'Erro ao salvar avaliações.');
     }
-
-    return redirect()->route('evaluations.index')
-        ->with('success', 'Avaliações cadastradas com sucesso!');
 }
     public function destroy(Evaluation $evaluation)
     {
@@ -101,9 +118,14 @@ class EvaluationController extends Controller
     public function getClassroomData($id)
 {
     $classroom = \App\Models\ClassRoom::with('disciplines')->findOrFail($id);
-
+$disciplines = $classroom->disciplines()
+        ->where('user_id', Auth::id()) // 🔥 FILTRO AQUI
+        ->get();
+        if (!$disciplines) {
+    return back()->with('error', 'Disciplina inválida.');
+}
     return response()->json([
-        'disciplines' => $classroom->disciplines,
+        'disciplines' => $disciplines,
         'units' => $classroom->units // 2 ou 3
     ]);
 }
