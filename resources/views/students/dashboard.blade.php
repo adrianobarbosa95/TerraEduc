@@ -79,6 +79,7 @@
                         <small class="text-muted">
                             {{ $discipline->user->name ?? 'Professor não definido' }}
                         </small>
+                    
                     </div>
 
                 </button>
@@ -188,7 +189,10 @@
                         </div>
 
                     </div>
-
+    <a href="{{ route('student.discipline.plan', $discipline->id) }}" 
+   class="btn btn-sm btn-outline-primary mt-2">
+   Ver Plano de Aula
+</a>
                 </div>
 
             </div>

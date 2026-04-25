@@ -28,9 +28,29 @@
                     @forelse ($disciplines as $discipline)
                         <tr>
 
-                            <td class="fw-semibold">
-                                {{ $discipline->name }}
-                            </td>
+                           <td class="fw-semibold">
+
+    {{ $discipline->name }}
+
+    <div class="mt-1">
+
+        @forelse ($discipline->classrooms as $classroom)
+
+            <a href="{{ route('plans.teacher', [$discipline->id, $classroom->id]) }}"
+               class="badge bg-primary me-1 mb-1 text-decoration-none"
+               title="Abrir plano de aula">
+
+                {{ $classroom->name }}
+
+            </a>
+
+        @empty
+            <span class="text-muted">Sem turmas vinculadas</span>
+        @endforelse
+
+    </div>
+
+</td>
 
                             <td>
                                 @forelse ($discipline->evaluationRules as $rule)

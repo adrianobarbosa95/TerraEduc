@@ -35,8 +35,11 @@ class ClassRoom extends Model
     {
         return $this->hasMany(EvaluationRule::class);
     }
-    public function schedules()
-    {
-        return $this->hasMany(ClassDisciplineSchedule::class);
-    }
+   public function schedules()
+{
+    return $this->hasMany(
+        ClassDisciplineSchedule::class,
+        'classroom_id' // 👈 nome correto no banco
+    );
+}
 }

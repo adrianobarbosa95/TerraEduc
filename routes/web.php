@@ -6,10 +6,12 @@ use App\Http\Controllers\Auth\StudentAuthController;
 use App\Http\Controllers\ClassRoomController;
 use App\Http\Controllers\DisciplineController;
 use App\Http\Controllers\GradeController;
+use App\Http\Controllers\PlanController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\StudentDashboardController;
+use App\Http\Controllers\StudentDisciplineController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
@@ -26,7 +28,9 @@ Route::middleware('auth:students')->group(function () {
     Route::get('/aluno/dashboard', [StudentDashboardController::class, 'index'])
         ->name('student.dashboard');
 });
-
+Route::get('/aluno/disciplina/{id}/plano', [StudentDisciplineController::class, 'plan'])
+    ->name('student.discipline.plan');
+    
 Route::get('/aluno/login', [StudentAuthController::class, 'showLogin']);
 Route::post('/aluno/login', [StudentAuthController::class, 'login']);
 Route::post('/aluno/logout', [StudentAuthController::class, 'logout']);
@@ -42,12 +46,21 @@ Route::middleware('auth')->group(function () {
 })->name('home');
  
 Route::get('/grades/data', [App\Http\Controllers\GradeController::class, 'getData']);
+Route::get('/disciplina/data', [App\Http\Controllers\GradeController::class, 'getData']);
  
 
 Route::get('/schedule', [ScheduleController::class, 'index'])
     ->name('schedules.index')
     ->middleware('auth');
- 
+
+
+// PROFESSOR
+Route::get('/professor/plan/{discipline}/{classroom}', [PlanController::class, 'teacher'])
+    ->name('plans.teacher');
+
+// SALVAR
+Route::post('/plans/store', [PlanController::class, 'store'])
+    ->name('plans.store');
 
 Route::post('/check-password', function (\Illuminate\Http\Request $request) {
 
