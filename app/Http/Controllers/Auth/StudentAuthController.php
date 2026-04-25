@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Student;
+use Illuminate\Support\Facades\Hash;
 
 class StudentAuthController extends Controller
 {
@@ -31,21 +32,23 @@ class StudentAuthController extends Controller
 
     
 
-    if ($request->password !== $student->password) {
-        return back()->withErrors([
-            'password' => 'Senha inválida'
-        ]);
-    }
-
+  if (!Hash::check($request->password, $student->password)) {
+    return back()->withErrors([
+        'password' => 'Senha inválida'
+    ]);
+}
     Auth::guard('students')->login($student);
 
     return redirect('/aluno/dashboard');
 }
 
-    public function logout()
-    {
-        Auth::guard('students')->logout();
+   public function logout(Request $request)
+{
+    Auth::guard('students')->logout();
 
-        return redirect('/aluno/login');
-    }
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+
+    return redirect()->route('welcome');
+}
 }

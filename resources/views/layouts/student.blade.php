@@ -90,7 +90,9 @@
 <body>
 
 @php
-    $user = Auth::user() ?? Auth::guard('students')->user();
+    $user = Auth::guard('students')->check()
+        ? Auth::guard('students')->user()
+        : Auth::user();
 @endphp
 
 <!-- SIDEBAR -->
@@ -119,9 +121,12 @@
                 {{ $user->name ?? 'Usuário' }}
             </span>
 
-            <a class="btn btn-sm btn-outline-secondary" href="{{ route('logout') }}">
-                Sair
-            </a>
+           <form method="POST" action="{{ route('logout-student') }}" style="display:inline;">
+    @csrf
+    <button type="submit" class="btn btn-sm btn-outline-secondary">
+        Sair
+    </button>
+</form>
         </div>
 
     </div>

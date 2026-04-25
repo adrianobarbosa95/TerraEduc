@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ClassRoom;
 use App\Models\Student;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 // use Maatwebsite\Excel\Facades\Excel;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
@@ -43,10 +44,14 @@ class StudentController extends Controller
 
     public function store(Request $request)
     {
+        
+// pega o primeiro nome
+ 
+$firstName = Str::ascii(strtolower(explode(' ', trim($request->name))[0] ?? ''));
         Student::create([
             'name' => $request->name,
             'registration' => $request->registration,
-            'password' => bcrypt($request->password),
+            'password' => bcrypt($request->firstName.$request->registration),
             'classroom_id' => $request->classroom_id,
         ]);
 
@@ -83,12 +88,11 @@ public function import(Request $request)
            
  
 // pega o primeiro nome
-$firstName = explode(' ', $name)[0];
- 
+$firstName = Str::ascii(strtolower(explode(' ', trim($name))[0] ?? '')); 
 Student::create([
     'name' => $name,
     'registration' => $registration,
-    'password' => bcrypt($firstName+$registration), // 👈 aqui
+    'password' => bcrypt($firstName.$registration), // 👈 aqui
     'classroom_id' => $request->classroom_id
 ]);
         }
@@ -135,12 +139,12 @@ Student::create([
     public function update(Request $request, $id)
     {
         $student = Student::findOrFail($id);
-        $firstName = explode(' ', trim($request->name))[0];
  
+ $firstName = Str::ascii(strtolower(explode(' ', trim($request->name))[0] ?? ''));
         $student->update([
             'name' => $request->name,
             'registration' => $request->registration,
-            'password' =>  bcrypt($firstName. $request->registration),
+            'password' =>  bcrypt($firstName.$request->registration),
         ]);
 
         return response()->json(['success' => true]);
