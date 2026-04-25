@@ -177,7 +177,13 @@
             </div>
 
             <div>
-                <span class="me-3 text-muted">{{Auth::user()->name}}</span>
+                <span class="me-3 text-muted">@php
+    $user = Auth::user() ?? Auth::guard('students')->user();
+@endphp
+
+<span class="me-3 text-muted">
+    {{ $user->name ?? 'Usuário' }}
+</span> 
                 <button class="btn btn-sm btn-outline-secondary "><a class="text-muted" href="{{ route('logout') }}" style="text-decoration: none;">Sair</a></button>
             </div>
 

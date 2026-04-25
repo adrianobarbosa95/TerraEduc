@@ -26,7 +26,10 @@ class Grade extends Model
     {
         return $this->belongsToMany(ClassRoom::class, 'class_discipline');
     }
-
+public function discipline()
+    {
+        return $this->belongsTo(Discipline::class);
+    }
     public function grades()
     {
         return $this->hasMany(Grade::class);

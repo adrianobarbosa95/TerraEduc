@@ -88,7 +88,7 @@ $firstName = explode(' ', $name)[0];
 Student::create([
     'name' => $name,
     'registration' => $registration,
-    'password' => bcrypt($firstName), // 👈 aqui
+    'password' => bcrypt($firstName+$registration), // 👈 aqui
     'classroom_id' => $request->classroom_id
 ]);
         }
@@ -140,7 +140,7 @@ Student::create([
         $student->update([
             'name' => $request->name,
             'registration' => $request->registration,
-            'password' =>  bcrypt($firstName),
+            'password' =>  bcrypt($firstName. $request->registration),
         ]);
 
         return response()->json(['success' => true]);
