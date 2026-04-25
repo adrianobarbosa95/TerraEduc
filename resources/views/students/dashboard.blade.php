@@ -59,9 +59,9 @@
             $all = $student->grades
                 ->where('evaluation.discipline_id', $discipline->id);
 
-           $totalUnits = $student->classroom->units ?? 1;
+            $totalUnits = $student->classroom->units ?? 1;
 
-    $mediaFinal = ($all->sum('value') ?? 0) / $totalUnits;
+            $mediaFinal = ($all->sum('value') ?? 0) / $totalUnits;
         @endphp
 
         <div class="accordion-item mb-3 border-0 shadow-sm rounded-3">
@@ -108,7 +108,6 @@
                                  onmouseout="this.style.transform='scale(1)'"
                                  onclick="showUnit('{{ $discipline->id }}','{{ $unit }}', event)">
 
-                                <!-- ÍCONE CLICÁVEL -->
                                 <span style="position:absolute; top:8px; right:10px; font-size:12px; opacity:0.5;">
                                     ▼
                                 </span>
@@ -136,7 +135,7 @@
                                 <tr>
                                     <th>Avaliação</th>
                                     <th>Data</th>
-                                      <th>Peso</th>
+                                    <th>Peso</th>
                                     <th>Nota</th>
                                 </tr>
                             </thead>
@@ -154,7 +153,7 @@
 
                                         <td>{{ $grade->evaluation->name }}</td>
                                         <td>{{ $grade->created_at->format('d/m/Y') }}</td>
-                                         <td>{{ $grade->evaluation->value }}</td>
+                                        <td>{{ $grade->evaluation->value }}</td>
                                         <td><strong>{{ $grade->value }}</strong></td>
 
                                     </tr>
@@ -169,12 +168,23 @@
 
                     </div>
 
-                    <!-- MÉDIA FINAL -->
+                    <!-- MÉDIA FINAL + STATUS -->
+                    @php
+                        $status = $mediaFinal >= 5 ? 'APROVADO' : 'REPROVADO';
+                        $color = $mediaFinal >= 5 ? 'text-success' : 'text-danger';
+                    @endphp
+
                     <div class="mt-3">
 
                         <div class="card border-0 shadow-sm p-3 rounded-3">
                             <small class="text-muted">Média Final da Disciplina</small>
+
                             <h3 class="mb-0">{{ number_format($mediaFinal, 2) }}</h3>
+
+                            <small class="{{ $color }}">
+                                {{ $status }}
+                            </small>
+
                         </div>
 
                     </div>
@@ -206,8 +216,6 @@
 <!-- SCRIPT -->
 <script>
 
-let activeCard = null;
-
 function showUnit(disciplineId, unit, event) {
 
     document.querySelectorAll('.grade-row').forEach(row => {
@@ -216,15 +224,12 @@ function showUnit(disciplineId, unit, event) {
         }
     });
 
-    // remover destaque anterior
     document.querySelectorAll('.unit-card').forEach(card => {
         card.classList.remove('active');
     });
 
-    // adicionar destaque atual
     event.currentTarget.classList.add('active');
 
-    activeCard = unit;
 }
 
 </script>
