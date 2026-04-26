@@ -15,8 +15,10 @@ use App\Http\Controllers\StudentDisciplineController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\StudentMovementController;
 
-Route::get('/', function () {
+
+    Route::get('/', function () {
     return view('welcome');
 })->name("welcome");
 
@@ -68,7 +70,16 @@ Route::middleware('auth')->group(function () {
     Route::resource('disciplines', DisciplineController::class);
     Route::resource('grades', GradeController::class);
     Route::post('/students/import', [StudentController::class, 'import'])->name('students.import');
-});
+Route::post('/students/{student}/change-classroom', [StudentMovementController::class, 'changeClassroom']);
+Route::post('/students/{student}/promote', [StudentMovementController::class, 'promote']);
+Route::get('/students/{id}/history', [StudentController::class, 'history'])
+    ->name('students.history');
+    Route::post('/classrooms/promote', [StudentMovementController::class, 'promoteClassroom']);
+Route::post('/students/change-classroom', [StudentController::class, 'changeClassroom'])
+    ->name('students.changeClassroom');
+Route::post('/students/bulk-delete', [StudentController::class, 'bulkDelete'])
+    ->name('students.bulkDelete');
+    });
 
 
 require __DIR__ . '/auth.php';

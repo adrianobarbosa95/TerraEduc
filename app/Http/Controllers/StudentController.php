@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\ClassRoom;
 use App\Models\Student;
+use App\Models\StudentClassroomHistory;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 // use Maatwebsite\Excel\Facades\Excel;
@@ -11,6 +13,55 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class StudentController extends Controller
 {
+   
+public function bulkDelete(Request $request)
+{
+    Student::whereIn('id', $request->ids)->delete();
+
+    return response()->json(['success' => true]);
+}
+public function changeClassroom(Request $request)
+{
+    $request->validate([
+        'student_id' => 'required|exists:students,id',
+        'classroom_id' => 'required|exists:classrooms,id',
+    ]);
+
+    $student = Student::findOrFail($request->student_id);
+
+    // 🔍 pega histórico atual (sem saída)
+    $current = StudentClassroomHistory::where('student_id', $student->id)
+        ->whereNull('left_at')
+        ->first();
+
+    // ❌ se já estiver na mesma turma
+    if ($current && $current->classroom_id == $request->classroom_id) {
+        return back()->with('error', 'Aluno já está nessa turma.');
+    }
+
+    // 🔒 fecha histórico atual
+    if ($current) {
+        $current->update([
+            'left_at' => Carbon::now()
+        ]);
+    }
+
+    // 🆕 cria novo histórico
+    StudentClassroomHistory::create([
+        'student_id' => $student->id,
+        'classroom_id' => $request->classroom_id,
+        'year' => date('Y'),
+        'entered_at' => Carbon::now(),
+        'left_at' => null
+    ]);
+
+    // 🔄 atualiza turma atual do aluno
+    $student->update([
+        'classroom_id' => $request->classroom_id
+    ]);
+
+    return back()->with('success', 'Aluno movido com sucesso!');
+}
    public function index(Request $request)
 {
     $classrooms = ClassRoom::all();
@@ -35,30 +86,46 @@ class StudentController extends Controller
 
     return view('students.index', compact('students', 'classrooms'));
 }
+ 
 
+public function history($id)
+{
+    $student = Student::with('history.classroom')->findOrFail($id);
+
+    return view('students.history', compact('student'));
+}
     public function create()
     {
         $classrooms = ClassRoom::all();
         return view('students.create', compact('classrooms'));
     }
 
-    public function store(Request $request)
-    {
-        
-// pega o primeiro nome
- 
-$firstName = Str::ascii(strtolower(explode(' ', trim($request->name))[0] ?? ''));
-        Student::create([
-            'name' => $request->name,
-            'registration' => $request->registration,
-            'password' => bcrypt($request->firstName.$request->registration),
-            'classroom_id' => $request->classroom_id,
-        ]);
+    
+public function store(Request $request)
+{
+    $firstName = Str::ascii(strtolower(explode(' ', trim($request->name))[0] ?? ''));
 
-        return redirect()->route('students.index');
-    }
+    $student = Student::create([
+        'name' => $request->name,
+        'registration' => $request->registration,
+        'password' => bcrypt($firstName . $request->registration),
+        'classroom_id' => $request->classroom_id,
+    ]);
 
-   
+    // 🔥 histórico inicial
+    StudentClassroomHistory::create([
+        'student_id' => $student->id,
+        'classroom_id' => $request->classroom_id,
+        'year' => now()->year, // melhor que date()
+        'entered_at' => now(),
+    ]);
+
+    return redirect()->route('students.index')
+        ->with('success', 'Aluno cadastrado com histórico!');
+}
+
+    
+
 public function import(Request $request)
 {
     try {
@@ -85,19 +152,30 @@ public function import(Request $request)
             // ignora cabeçalho
             if ($registration == 'Matrícula') continue;
 
-           
- 
-// pega o primeiro nome
-$firstName = Str::ascii(strtolower(explode(' ', trim($name))[0] ?? '')); 
-Student::create([
-    'name' => $name,
-    'registration' => $registration,
-    'password' => bcrypt($firstName.$registration), // 👈 aqui
-    'classroom_id' => $request->classroom_id
-]);
+            // 🔥 evita duplicar aluno
+            if (Student::where('registration', $registration)->exists()) {
+                continue;
+            }
+
+            $firstName = Str::ascii(strtolower(explode(' ', trim($name))[0] ?? ''));
+
+            $student = Student::create([
+                'name' => $name,
+                'registration' => $registration,
+                'password' => bcrypt($firstName . $registration),
+                'classroom_id' => $request->classroom_id
+            ]);
+
+            // 🔥 CRIA HISTÓRICO
+            StudentClassroomHistory::create([
+                'student_id' => $student->id,
+                'classroom_id' => $request->classroom_id,
+                'year' => now()->year,
+                'entered_at' => now(),
+            ]);
         }
 
-        return back()->with('success', 'Alunos importados!');
+        return back()->with('success', 'Alunos importados com histórico!');
 
     } catch (\Exception $e) {
 

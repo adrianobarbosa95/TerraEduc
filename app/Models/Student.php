@@ -26,7 +26,10 @@ class Student extends Authenticatable
     {
         return $this->belongsTo(ClassRoom::class);
     }
-
+public function history()
+{
+    return $this->hasMany(\App\Models\StudentClassroomHistory::class);
+}
     // 📊 notas
     public function grades()
     {
