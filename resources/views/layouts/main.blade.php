@@ -175,7 +175,9 @@
                 <button id="toggleBtn">⮜</button>
                 <span class="fw-semibold text-secondary">Sistema Acadêmico</span>
             </div>
-
+<a href="{{ route('tutorial') }}" class="btn btn-sm btn-outline-info">
+    ❓ Ajuda
+</a>
             <div>
                 <span class="me-3 text-muted">@php
     $user = Auth::user() ?? Auth::guard('students')->user();

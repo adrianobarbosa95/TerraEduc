@@ -114,5 +114,10 @@
 
     </div>
 </div>
-
+<script>
+if (!localStorage.getItem('tutorial_visto')) {
+    localStorage.setItem('tutorial_visto', 'sim');
+    window.location.href = "{{ route('tutorial') }}";
+}
+</script>
 @endsection

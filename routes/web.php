@@ -21,7 +21,9 @@ use App\Http\Controllers\StudentMovementController;
     Route::get('/', function () {
     return view('welcome');
 })->name("welcome");
-
+Route::get('/tutorial', function () {
+    return view('tutorial.index');
+})->name('tutorial'); 
 Route::get('/dashboard', function () {
     return redirect()->route("home");
 })->middleware(['auth', 'verified'])->name('dashboard');

@@ -316,6 +316,13 @@
             </div>
 
         </div>
+        <a href="{{ route('tutorial') }}" 
+   class="btn btn-outline-secondary"
+   style="transition:0.2s;"
+   onmouseover="this.style.transform='scale(1.05)'"
+   onmouseout="this.style.transform='scale(1)'">
+    📘 Como funciona
+</a>
     </div>
 
 </section>
