@@ -6,7 +6,6 @@
     <title>TerraEduc</title>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
@@ -30,13 +29,7 @@
         }
 
         .sidebar.collapsed { margin-left: -260px; }
-
-        .sidebar .brand {
-            text-align: center;
-            font-size: 1.4rem;
-            font-weight: bold;
-            margin-bottom: 30px;
-        }
+        .sidebar.show { margin-left: 0; }
 
         .sidebar a {
             display: block;
@@ -57,6 +50,7 @@
             margin-left: 260px;
             background-color: #fff;
             border-bottom: 1px solid #dee2e6;
+            transition: all 0.3s ease;
         }
 
         .topbar.expanded { margin-left: 0; }
@@ -64,12 +58,14 @@
         .content {
             margin-left: 260px;
             padding: 25px;
+            transition: all 0.3s ease;
         }
 
         .content.expanded { margin-left: 0; }
 
         footer {
             margin-left: 260px;
+            transition: all 0.3s ease;
         }
 
         footer.expanded { margin-left: 0; }
@@ -83,6 +79,46 @@
         .card {
             border: none;
             border-radius: 12px;
+        }
+
+        /* OVERLAY */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.4);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.3s;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* MOBILE */
+        @media (max-width: 768px) {
+            .sidebar {
+                margin-left: -260px;
+            }
+
+            .sidebar.show {
+                margin-left: 0;
+            }
+
+            .topbar,
+            .content,
+            footer {
+                margin-left: 0 !important;
+            }
+
+            .content {
+                padding: 15px;
+            }
         }
     </style>
 </head>
@@ -98,13 +134,20 @@
 <!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
 
-    <div class="brand text-center">
-        🎓 TerraEduc
+    <!-- TOPO DO MENU COM BOTÃO FECHAR -->
+    <div class="d-flex justify-content-between align-items-center px-3 mb-3">
+        <span class="fw-bold">🎓 TerraEduc</span>
+        <button id="closeSidebar" style="background:none;border:none;color:white;font-size:20px;">
+            ✖
+        </button>
     </div>
 
     <a href="{{ url('/aluno/dashboard') }}">🏠 Início</a>
 
 </div>
+
+<!-- OVERLAY -->
+<div class="overlay" id="overlay"></div>
 
 <!-- TOPBAR -->
 <nav class="navbar topbar px-3" id="topbar">
@@ -121,12 +164,12 @@
                 {{ $user->name ?? 'Usuário' }}
             </span>
 
-           <form method="POST" action="{{ route('logout-student') }}" style="display:inline;">
-    @csrf
-    <button type="submit" class="btn btn-sm btn-outline-secondary">
-        Sair
-    </button>
-</form>
+            <form method="POST" action="{{ route('logout-student') }}" style="display:inline;">
+                @csrf
+                <button type="submit" class="btn btn-sm btn-outline-secondary">
+                    Sair
+                </button>
+            </form>
         </div>
 
     </div>
@@ -150,17 +193,47 @@
     const topbar = document.getElementById('topbar');
     const footer = document.getElementById('footer');
     const toggleBtn = document.getElementById('toggleBtn');
+    const overlay = document.getElementById('overlay');
+    const closeSidebar = document.getElementById('closeSidebar');
 
-    let isOpen = true;
+    function isMobile() {
+        return window.innerWidth <= 768;
+    }
+
+    // estado inicial mobile
+    if (isMobile()) {
+        sidebar.classList.add('collapsed');
+        content.classList.add('expanded');
+        topbar.classList.add('expanded');
+        footer.classList.add('expanded');
+        toggleBtn.innerHTML = '⮞';
+    }
 
     toggleBtn.addEventListener('click', () => {
-        sidebar.classList.toggle('collapsed');
-        content.classList.toggle('expanded');
-        topbar.classList.toggle('expanded');
-        footer.classList.toggle('expanded');
+        if (isMobile()) {
+            sidebar.classList.toggle('show');
+            overlay.classList.toggle('active');
+        } else {
+            sidebar.classList.toggle('collapsed');
+            content.classList.toggle('expanded');
+            topbar.classList.toggle('expanded');
+            footer.classList.toggle('expanded');
 
-        isOpen = !isOpen;
-        toggleBtn.innerHTML = isOpen ? '⮜' : '⮞';
+            toggleBtn.innerHTML =
+                sidebar.classList.contains('collapsed') ? '⮞' : '⮜';
+        }
+    });
+
+    // fechar clicando fora
+    overlay.addEventListener('click', () => {
+        sidebar.classList.remove('show');
+        overlay.classList.remove('active');
+    });
+
+    // botão fechar dentro do menu
+    closeSidebar.addEventListener('click', () => {
+        sidebar.classList.remove('show');
+        overlay.classList.remove('active');
     });
 </script>
 
