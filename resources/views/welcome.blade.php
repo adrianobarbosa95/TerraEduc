@@ -196,7 +196,7 @@
     <h1 class="fw-bold">TerraEduc</h1>
     <p class="text-muted">Plataforma moderna para gestão educacional</p>
 
-    <div class="d-flex gap-3 mt-4">
+    <div class="d-flex gap-3 mt-4">  
         <a href="{{ route('login') }}" class="btn btn-primary px-4">Acessar como Professor</a>
         <a href="{{ route('login-student') }}" class="btn btn-success px-4">Acessar como Aluno</a>
     </div>
