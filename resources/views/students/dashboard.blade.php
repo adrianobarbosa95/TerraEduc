@@ -153,7 +153,7 @@
                                         style="display:none;">
 
                                         <td>{{ $grade->evaluation->name }}</td>
-                                        <td>{{ $grade->created_at->format('d/m/Y') }}</td>
+                                        <td>{{ $grade->date->format('d/m/Y') }}</td>
                                         <td>{{ $grade->evaluation->value }}</td>
                                         <td><strong>{{ $grade->value }}</strong></td>
 
