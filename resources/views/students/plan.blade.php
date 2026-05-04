@@ -5,16 +5,20 @@
 <div class="container mt-4">
 
     @php
-        $schedules = $classroom->schedules
-            ->where('discipline_id', $discipline->id);
+        use App\Models\ClassDisciplineSchedule;
+
+        // 🔥 CORREÇÃO PRINCIPAL: consulta isolada por turma + disciplina
+        $schedules = ClassDisciplineSchedule::where([
+            'classroom_id' => $classroom->id,
+            'discipline_id' => $discipline->id
+        ])->get();
 
         $diasSemana = [
-            1 => 'Segunda',
-            2 => 'Terça',
-            3 => 'Quarta',
-            4 => 'Quinta',
-            5 => 'Sexta',
-            6 => 'Sábado'
+            2 => 'Segunda',
+            3 => 'Terça',
+            4 => 'Quarta',
+            5 => 'Quinta',
+            6 => 'Sexta',
         ];
 
         $horarios = [
@@ -49,12 +53,10 @@
 
         <div class="d-flex justify-content-between align-items-center flex-wrap">
 
-            <!-- ESQUERDA -->
             <div class="fw-semibold fs-4">
                 {{ $discipline->name }}
             </div>
 
-            <!-- DIREITA -->
             <div class="text-muted small text-end">
 
                 <div>
@@ -69,16 +71,23 @@
                     @forelse($schedules as $schedule)
 
                         @php
-                            $slots = str_split($schedule->slots);
-                            $listaHorarios = [];
+                            $slots = is_string($schedule->slots)
+                                ? str_split($schedule->slots)
+                                : [];
 
-                            foreach ($slots as $slot) {
-                                $listaHorarios[] = $horarios[$schedule->shift][$slot] ?? '';
-                            }
+                            $listaHorarios = collect($slots)
+                                ->map(fn($slot) => $horarios[$schedule->shift][$slot] ?? null)
+                                ->filter()
+                                ->values()
+                                ->toArray();
                         @endphp
 
                         {{ $diasSemana[$schedule->day] ?? '-' }}
-                        ({{ implode(', ', $listaHorarios) }})
+
+                        @if(count($listaHorarios))
+                            ({{ implode(', ', $listaHorarios) }})
+                        @endif
+
                         @if(!$loop->last) • @endif
 
                     @empty
@@ -95,7 +104,9 @@
     <!-- TÍTULO -->
     <div class="mb-2 text-center">
         <h5 class="fw-semibold">Plano de Aulas</h5>
-        <small class="text-muted">Aulas previstas conforme calendário e horário da disciplina</small>
+        <small class="text-muted">
+            Aulas previstas conforme calendário e horário da disciplina
+        </small>
     </div>
 
     <!-- TABELA -->
@@ -134,7 +145,15 @@
                         </td>
 
                         <td>{{ $plan->content ?? '' }}</td>
-                        <td><a href="{{ $plan->slide ?? '' }}">{{ $plan->slide ?? '' }}</a></td>
+
+                        <td>
+                            @if(!empty($plan->slide))
+                                <a href="{{ $plan->slide }}" target="_blank">
+                                    {{ $plan->slide }}
+                                </a>
+                            @endif
+                        </td>
+
                         <td>{{ $plan->activity ?? '' }}</td>
                     </tr>
 

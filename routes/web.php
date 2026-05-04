@@ -34,8 +34,7 @@ Route::post('/aluno/logout', [StudentAuthController::class, 'logout'])->name("lo
 Route::middleware('auth:students')->group(function () {
     Route::get('/aluno/dashboard', [StudentDashboardController::class, 'index'])
         ->name('student.dashboard');
-    Route::get('/aluno/disciplina/{id}/plano', [StudentDisciplineController::class, 'plan'])
-    ->name('student.discipline.plan');
+    Route::get('/aluno/disciplina/{id}/plano', [StudentDisciplineController::class, 'plan'])->name('student.discipline.plan');
 });
 
 Route::middleware('auth')->group(function () {

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\ClassDisciplineSchedule;
@@ -17,11 +18,11 @@ class PlanController extends Controller
         $discipline = Discipline::with('user')->findOrFail($disciplineId);
         $classroom = ClassRoom::with('schedules')->findOrFail($classroomId);
 
-        
-$schedules = ClassDisciplineSchedule::where([
-    'classroom_id' => $classroom->id,
-    'discipline_id' => $discipline->id
-])->get();
+
+        $schedules = ClassDisciplineSchedule::where([
+            'classroom_id' => $classroom->id,
+            'discipline_id' => $discipline->id
+        ])->get();
         Carbon::setLocale('pt_BR');
 
         // 📅 GERAR AULAS (FEV → DEZ)
@@ -33,9 +34,9 @@ $schedules = ClassDisciplineSchedule::where([
 
         while ($start <= $end) {
 
-            foreach ($schedules as $schedule) {
+            foreach ($schedules  as $schedule) {
 
-                if ($start->dayOfWeekIso == $schedule->day) {
+                if ($start->dayOfWeekIso == $schedule->day-1) {
 
                     $classes[] = [
                         'number' => $i++,
@@ -85,5 +86,4 @@ $schedules = ClassDisciplineSchedule::where([
 
         return back()->with('success', 'Plano salvo com sucesso');
     }
-
 }

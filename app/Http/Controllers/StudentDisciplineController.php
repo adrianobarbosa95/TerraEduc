@@ -3,69 +3,86 @@
 namespace App\Http\Controllers;
 
 use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 use App\Models\Discipline;
+use App\Models\ClassRoom;
 use App\Models\Plan;
+use App\Models\ClassDisciplineSchedule;
+use Illuminate\Support\Facades\Auth;
 
 class StudentDisciplineController extends Controller
 {
     public function plan($id)
     {
-        $discipline = Discipline::with([
-            'user',
-            'classrooms.schedules'
-        ])->findOrFail($id);
+        $student = Auth::guard('students')->user();
 
-        $classroom = $discipline->classrooms->first();
-
-        // pega os dias da semana da disciplina (campo correto: day)
-        $weekDays = $classroom->schedules
-            ->where('discipline_id', $discipline->id)
-            ->pluck('day')
-            ->toArray();
-
-        // fallback caso não tenha horário cadastrado
-        if (empty($weekDays)) {
-            $weekDays = [1, 2, 3, 4, 5];
+        if (!$student) {
+            return redirect('/aluno/login');
         }
- 
 
-Carbon::setLocale('pt_BR');
-        $start = Carbon::create(null, 2, 1);   // 01 fevereiro
-        $end   = Carbon::create(null, 12, 24); // 24 dezembro
+        // 🔥 disciplina vem da URL
+        $discipline = Discipline::with('user')->findOrFail($id);
+
+        // 🔥 turma vem do aluno (NUNCA do first())
+        $classroom = $student->classroom()
+            ->whereHas('disciplines', function ($q) use ($id) {
+                $q->where('disciplines.id', $id);
+            })
+            ->firstOrFail();
+
+        // 🔥 schedules corretos
+        $schedules = ClassDisciplineSchedule::where([
+            'classroom_id' => $classroom->id,
+            'discipline_id' => $discipline->id
+        ])->get();
+
+        $weekDays = $schedules->pluck('day')->toArray();
+
+        if (empty($weekDays)) {
+            $weekDays = [2, 3, 4, 5, 6];
+        }
+
+        Carbon::setLocale('pt_BR');
+
+        $period = CarbonPeriod::create(
+            Carbon::create(null, 2, 1),
+            Carbon::create(null, 12, 24)
+        );
 
         $classes = [];
         $count = 1;
 
-        while ($start <= $end) {
+        foreach ($period as $date) {
 
-            if (in_array($start->dayOfWeek, $weekDays)) {
+            // 🔥 ISO correto: 1 = segunda ... 7 = domingo
+            $day = (int) $date->isoFormat('E')+1;
 
-                $classes[] = [
-    'number' => $count++,
-
-    // DATA PARA O BANCO
-    'date'   => $start->format('Y-m-d'),
-
-    // DATA BONITA PARA EXIBIR
-    'formatted' => $start->format('d/m/Y'),
-
-    // DIA DA SEMANA
-    'day'    => ucfirst($start->translatedFormat('l'))
-];
+            if ($day > 5) {
+                continue;
             }
 
-            $start->addDay();
+            if (in_array($day, $weekDays)) {
+
+                $classes[] = [
+                    'number' => $count++,
+                    'date' => $date->format('Y-m-d'),
+                    'formatted' => $date->format('d/m/Y'),
+                    'day' => ucfirst($date->translatedFormat('l'))
+                ];
+            }
         }
-        $plans = Plan::where('discipline_id', $discipline->id)
-    ->where('classroom_id', $classroom->id)
-    ->get()
-    ->keyBy('date');
- 
+
+        // 🔥 plans isolado corretamente
+        $plans = Plan::where([
+            'discipline_id' => $discipline->id,
+            'classroom_id' => $classroom->id
+        ])->get()->keyBy('date');
+
         return view('students.plan', compact(
             'discipline',
             'classroom',
-            'classes', 
-             'plans'
+            'classes',
+            'plans'
         ));
     }
 }

@@ -29,12 +29,11 @@
 
                     @php
                         $diasSemana = [
-                            1 => 'Segunda',
-                            2 => 'Terça',
-                            3 => 'Quarta',
-                            4 => 'Quinta',
-                            5 => 'Sexta',
-                            6 => 'Sábado'
+                            2 => 'Segunda',
+                            3 => 'Terça',
+                            4 => 'Quarta',
+                            5 => 'Quinta',
+                            6 => 'Sexta',
                         ];
 
                         $horarios = [
@@ -64,19 +63,25 @@
                         ];
                     @endphp
 
-                    @forelse($schedules as $schedule)
+                    @forelse(($schedules ?? []) as $schedule)
 
                         @php
-                            $slots = str_split($schedule->slots);
+                            $slots = $schedule->slots ? str_split($schedule->slots) : [];
+
                             $listaHorarios = [];
 
                             foreach ($slots as $slot) {
-                                $listaHorarios[] = $horarios[$schedule->shift][$slot] ?? '';
+                                $listaHorarios[] = $horarios[$schedule->shift][$slot] ?? null;
                             }
+
+                            $listaHorarios = array_filter($listaHorarios);
                         @endphp
 
                         {{ $diasSemana[$schedule->day] ?? '-' }}
-                        ({{ implode(', ', $listaHorarios) }})
+                        @if(count($listaHorarios))
+                            ({{ implode(', ', $listaHorarios) }})
+                        @endif
+
                         @if(!$loop->last) • @endif
 
                     @empty
