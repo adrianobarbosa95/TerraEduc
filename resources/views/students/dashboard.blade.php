@@ -153,7 +153,7 @@
                                         style="display:none;">
 
                                         <td>{{ $grade->evaluation->name }}</td>
-                                        <td>{{ $grade->date->format('d/m/Y') }}</td>
+                                       <td>{{ \Carbon\Carbon::parse($grade->evaluation->date)->format('d/m/Y') }}</td>
                                         <td>{{ $grade->evaluation->value }}</td>
                                         <td><strong>{{ $grade->value }}</strong></td>
 
