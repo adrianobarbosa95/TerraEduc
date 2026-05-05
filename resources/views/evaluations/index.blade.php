@@ -4,15 +4,15 @@
 
     <div class="container-fluid">
 
-       <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-3">
 
-    <h4 class="mb-0">📊 Avaliações</h4>
+            <h4 class="mb-0">📊 Avaliações</h4>
 
-    <a href="{{ route('evaluations.create') }}" class="btn btn-success">
-        ➕ Nova Avaliação
-    </a>
+            <a href="{{ route('evaluations.create') }}" class="btn btn-success">
+                ➕ Nova Avaliação
+            </a>
 
-</div>
+        </div>
 
         {{-- ================= FILTRO ================= --}}
         <form method="GET" class="card p-3 mb-4 shadow-sm">
@@ -84,6 +84,7 @@
                                 <th>Data</th>
                                 <th>Disciplina</th>
                                 <th>Turma</th>
+                                <th>Unidade</th>
                                 <th>Descrição</th>
                                 <th>Valor</th>
                                 <th>Ações</th>
@@ -110,6 +111,9 @@
                                     <td>
                                         {{ $evaluation->classroom->name ?? '-' }}
                                     </td>
+                                     <td>
+                                        {{ $evaluation->unit ?? '-' }}ª
+                                    </td>
 
                                     <td>
                                         {{ $evaluation->description ?? '-' }}
@@ -121,7 +125,10 @@
 
                                     <td>
                                         <button class="btn btn-sm btn-primary">
-                                            📄
+                                            <a href="{{ route('grades.show', $evaluation->id) }}"
+                                                class="btn btn-sm btn-primary">
+                                                📄 Notas
+                                            </a>
                                         </button>
                                     </td>
 

@@ -69,7 +69,8 @@ Route::middleware('auth')->group(function () {
     Route::put('classrooms/{classRoom}', [ClassRoomController::class, 'update']);
     Route::resource('classrooms', ClassRoomController::class);
     Route::resource('disciplines', DisciplineController::class);
-    Route::resource('grades', GradeController::class);
+Route::resource('grades', GradeController::class)->except(['show']);
+Route::get('/grades/{evaluation}', [GradeController::class, 'show'])->name('grades.show');
     Route::post('/students/import', [StudentController::class, 'import'])->name('students.import');
 Route::post('/students/{student}/change-classroom', [StudentMovementController::class, 'changeClassroom']);
 Route::post('/students/{student}/promote', [StudentMovementController::class, 'promote']);

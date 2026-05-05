@@ -15,9 +15,27 @@ class GradeController extends Controller
 {
     public function index()
     {
-        $disciplines = Discipline::all();
-        return view('disciplines.index', compact('disciplines'));
+        // $grades = Grade::all();
+        // return view('grades.index', compact('grades'));
     }
+    public function show(Evaluation $evaluation)
+{
+    // 🔹 Alunos da turma da avaliação
+    $students = Student::where('classroom_id', $evaluation->classroom_id)
+        ->orderBy('name')
+        ->get();
+
+    // 🔹 Notas já lançadas dessa avaliação
+    $grades = Grade::where('evaluation_id', $evaluation->id)
+        ->get();
+
+    return view('grades.show', compact(
+        'evaluation',
+        'students',
+        'grades'
+    ));
+}
+
 public function store(Request $request)
 {
     if (!$request->grades) {
@@ -117,10 +135,7 @@ public function getData(Request $request)
     /**
      * Display the specified resource.
      */
-    public function show(Grade $grade)
-    {
-        //
-    }
+    
 
     /**
      * Show the form for editing the specified resource.
