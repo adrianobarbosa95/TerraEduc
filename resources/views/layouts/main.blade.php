@@ -108,7 +108,7 @@
             font-size: 22px;
             cursor: pointer;
             margin-right: 10px;
-            z-index: 1100;
+            z-index: 1000;
         }
 
         /* MOBILE */
@@ -162,7 +162,7 @@
 
     <div class="sidebar-header">
         <span>🎓 TerraEduc</span>
-        <button id="closeSidebar">✖</button>
+        <button id="closeSidebar" style="display:none;">✖</button>
     </div>
 
     <a href="{{ url('/home') }}">🏠 Início</a>
@@ -187,7 +187,7 @@
     <div class="container-fluid d-flex justify-content-between align-items-center">
 
         <div class="d-flex align-items-center">
-            <button id="toggleBtn">⮜</button>
+          <button id="toggleBtn">✖</button>
             <span class="system-title fw-semibold text-secondary">
                 Sistema Acadêmico
             </span>
@@ -225,14 +225,21 @@
     const toggleBtn = document.getElementById('toggleBtn');
     const overlay = document.getElementById('overlay');
     const closeSidebar = document.getElementById('closeSidebar');
-
+    if (isMobile()) {
+    toggleBtn.innerHTML = '☰';}
     function isMobile() {
         return window.innerWidth <= 992;
     }
 
     function updateIcon() {
-        toggleBtn.innerHTML = sidebar.classList.contains('collapsed') ? '⮞' : '⮜';
+    if (isMobile()) {
+         
+        toggleBtn.innerHTML = sidebar.classList.contains('show') ? '✖' : '☰';
+        closeSidebar.style.display = "block";
+    } else {
+        toggleBtn.innerHTML = sidebar.classList.contains('collapsed') ? '☰' : '✖';
     }
+} 
 
     toggleBtn.addEventListener('click', () => {
         if (isMobile()) {
@@ -243,18 +250,21 @@
             content.classList.toggle('expanded');
             topbar.classList.toggle('expanded');
             footer.classList.toggle('expanded');
-            updateIcon();
+            
         }
+        updateIcon();
     });
 
     closeSidebar.addEventListener('click', () => {
         sidebar.classList.remove('show');
         overlay.classList.remove('show');
+        updateIcon();
     });
 
     overlay.addEventListener('click', () => {
         sidebar.classList.remove('show');
         overlay.classList.remove('show');
+        updateIcon();
     });
 
     document.querySelectorAll('.sidebar a').forEach(link => {
