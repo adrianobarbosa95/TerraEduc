@@ -15,7 +15,7 @@
                 <option value="">Selecione</option>
                 @foreach($classrooms as $c)
                     <option value="{{ $c->id }}" data-period="{{ $c->period }}">
-                        {{ $c->name }}
+                        {{ $c->name }} ({{ $c->year }})
                     </option>
                 @endforeach
             </select>
