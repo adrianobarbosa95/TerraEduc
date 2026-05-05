@@ -2,213 +2,150 @@
 
 @section('content')
 
-<div class="container">
+    <div class="container-fluid">
 
-    <h4>Nova Avaliação</h4>
+       <div class="d-flex justify-content-between align-items-center mb-3">
 
-    <form action="{{ route('evaluations.store') }}" method="POST">
-        @csrf
+    <h4 class="mb-0">📊 Avaliações</h4>
 
-        {{-- TURMA --}}
-        <div class="mb-3">
-            <label>Turma</label>
-            <select name="classroom_id" id="classroom" class="form-control" onchange="loadClassroomData()" required>
-                <option value="">Selecione</option>
-                @foreach($classrooms as $classroom)
-                    <option value="{{ $classroom->id }}">
-                        {{ $classroom->name }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
+    <a href="{{ route('evaluations.create') }}" class="btn btn-success">
+        ➕ Nova Avaliação
+    </a>
 
-        {{-- DISCIPLINA --}}
-        <div class="mb-3">
-            <label>Disciplina</label>
-            <select name="discipline_id" id="discipline" class="form-control" required>
-                <option value="">Selecione a turma primeiro</option>
-            </select>
-        </div>
-
-        {{-- UNIDADE --}}
-        <div class="mb-3">
-            <label>Unidade</label>
-            <select name="unit" id="unit" class="form-control" required>
-                <option value="">Selecione a turma</option>
-            </select>
-        </div>
-
-        <hr>
-
-        {{-- AVALIAÇÕES --}}
-        <h5>Avaliações</h5>
-
-        <div id="evaluations"></div>
-
-        <button type="button" class="btn btn-primary mt-2" onclick="addEvaluation()">
-            ➕ Adicionar Avaliação
-        </button>
-
-        <div class="mt-3">
-            <strong>Total: <span id="total">0</span> / 10</strong>
-        </div>
-
-        <br>
-
-        <button id="saveBtn" class="btn btn-success" disabled>
-            Salvar Avaliações
-        </button>
-
-    </form>
 </div>
 
-{{-- SCRIPT --}}
-<script>
-
-let count = 0;
-
-// 🔥 CARREGA DISCIPLINAS E UNIDADES
-function loadClassroomData() {
-
-    const classroomId = document.getElementById('classroom').value;
-
-    if (!classroomId) return;
-
-    fetch(`/classrooms/${classroomId}/data`)
-        .then(res => res.json())
-        .then(data => {
-
-            // DISCIPLINAS
-            let disciplineSelect = document.getElementById('discipline');
-            disciplineSelect.innerHTML = '<option value="">Selecione</option>';
-
-            data.disciplines.forEach(d => {
-                disciplineSelect.innerHTML += `<option value="${d.id}">${d.name}</option>`;
-            });
-
-            // UNIDADES
-            let unitSelect = document.getElementById('unit');
-            unitSelect.innerHTML = '<option value="">Selecione</option>';
-
-            for (let i = 1; i <= data.units; i++) {
-                unitSelect.innerHTML += `<option value="${i}">Unidade ${i}</option>`;
-            }
-
-        })
-        .catch(err => {
-            console.error(err);
-            alert('Erro ao carregar dados da turma');
-        });
-}
-
-// 🔥 ADICIONAR AVALIAÇÃO
-function addEvaluation() {
-
-    count++;
-
-    const html = `
-        <div class="card p-3 mb-2 evaluation-item">
+        {{-- ================= FILTRO ================= --}}
+        <form method="GET" class="card p-3 mb-4 shadow-sm">
 
             <div class="row">
-                <div class="col-md-3">
-                    <input type="text" name="evaluations[${count}][name]" 
-                        class="form-control" placeholder="Nome" required>
+
+                {{-- TURMA --}}
+                <div class="col-md-4">
+                    <label>Turma</label>
+                    <select name="classroom_id" class="form-control" onchange="this.form.submit()">
+
+                        <option value="">-- Selecione uma turma --</option>
+
+                        @foreach ($classrooms as $classroom)
+                            <option value="{{ $classroom->id }}"
+                                {{ request('classroom_id') == $classroom->id ? 'selected' : '' }}>
+                                {{ $classroom->name }} ({{ $classroom->year }})
+                            </option>
+                        @endforeach
+
+                    </select>
                 </div>
 
-                <div class="col-md-2">
-                    <input type="number" step="0.1" name="evaluations[${count}][value]" 
-                        class="form-control value-input" placeholder="Valor" 
-                        required oninput="calculateTotal()">
+                {{-- DISCIPLINA --}}
+                <div class="col-md-4">
+                    <label>Disciplina</label>
+                    <select name="discipline_id" class="form-control" onchange="this.form.submit()">
+
+                        <option value="">-- Selecione disciplina --</option>
+
+                        @if (request('classroom_id'))
+                            @foreach ($disciplines as $discipline)
+                                <option value="{{ $discipline->id }}"
+                                    {{ request('discipline_id') == $discipline->id ? 'selected' : '' }}>
+                                    {{ $discipline->name }}
+                                </option>
+                            @endforeach
+                        @else
+                            <option disabled>Selecione uma turma primeiro</option>
+                        @endif
+
+                    </select>
                 </div>
 
-                <div class="col-md-3">
-                    <input type="date" name="evaluations[${count}][date]" class="form-control">
+                {{-- LIMPAR --}}
+                <div class="col-md-4 d-flex align-items-end">
+                    <a href="{{ route('evaluations.index') }}" class="btn btn-secondary w-100">
+                        Limpar
+                    </a>
                 </div>
 
-                <div class="col-md-3">
-                    <input type="text" name="evaluations[${count}][description]" 
-                        class="form-control" placeholder="Descrição">
+            </div>
+
+        </form>
+
+        {{-- ================= LISTA ================= --}}
+        <div class="card shadow-sm">
+
+            <div class="card-body">
+
+                <div class="table-responsive">
+
+                    <table class="table table-hover text-center align-middle">
+
+                        <thead class="table-light">
+                            <tr>
+
+                                <th>Avaliação</th>
+                                <th>Data</th>
+                                <th>Disciplina</th>
+                                <th>Turma</th>
+                                <th>Descrição</th>
+                                <th>Valor</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @forelse($evaluations as $evaluation)
+                                <tr>
+
+
+
+                                    <td>
+                                        {{ $evaluation->name ?? '-' }}
+                                    </td>
+                                    <td>
+                                        {{ $evaluation->date ? \Carbon\Carbon::parse($evaluation->date)->format('d/m/Y') : '-' }}
+                                    </td>
+                                    <td>
+                                        {{ $evaluation->discipline->name ?? '-' }}
+                                    </td>
+
+                                    <td>
+                                        {{ $evaluation->classroom->name ?? '-' }}
+                                    </td>
+
+                                    <td>
+                                        {{ $evaluation->description ?? '-' }}
+                                    </td>
+
+                                    <td>
+                                        {{ $evaluation->value ?? '-' }}
+                                    </td>
+
+                                    <td>
+                                        <button class="btn btn-sm btn-primary">
+                                            📄
+                                        </button>
+                                    </td>
+
+                                </tr>
+
+                            @empty
+
+                                <tr>
+                                    <td colspan="7" class="text-muted">
+                                        Nenhuma avaliação encontrada
+                                    </td>
+                                </tr>
+                            @endforelse
+
+                        </tbody>
+
+                    </table>
+
                 </div>
 
-                <div class="col-md-1 text-end">
-                    <button type="button" class="btn btn-danger btn-sm" onclick="removeEvaluation(this)">
-                        X
-                    </button>
-                </div>
             </div>
 
         </div>
-    `;
 
-    document.getElementById('evaluations').insertAdjacentHTML('beforeend', html);
-}
+    </div>
 
-// 🔥 REMOVER
-function removeEvaluation(btn) {
-    btn.closest('.evaluation-item').remove();
-    calculateTotal();
-}
-
-// 🔥 SOMA AUTOMÁTICA
-function calculateTotal() {
-
-    let total = 0;
-    let countItems = document.querySelectorAll('.evaluation-item').length;
-
-    document.querySelectorAll('.value-input').forEach(input => {
-        total += parseFloat(input.value) || 0;
-    });
-
-    total = parseFloat(total.toFixed(2));
-
-    document.getElementById('total').innerText = total;
-
-    const saveBtn = document.getElementById('saveBtn');
-
-    // REGRA
-    if (total === 10 && countItems >= 3) {
-        saveBtn.disabled = false;
-    } else {
-        saveBtn.disabled = true;
-    }
-}
-
-// 🔥 INICIA COM 3
-addEvaluation();
-addEvaluation();
-addEvaluation();
-
-</script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-@if(session('success'))
-<script>
-    Swal.fire({
-        icon: 'success',
-        title: 'Sucesso!',
-        text: "{{ session('success') }}"
-    });
-</script>
-@endif
-
-@if(session('error'))
-<script>
-    Swal.fire({
-        icon: 'error',
-        title: 'Erro!',
-        text: "{{ session('error') }}"
-    });
-</script>
-@endif
-
-@if ($errors->any())
-<script>
-    Swal.fire({
-        icon: 'error',
-        title: 'Erro de validação',
-        html: `{!! implode('<br>', $errors->all()) !!}`
-    });
-</script>
-
-@endif
 @endsection

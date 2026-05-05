@@ -9,21 +9,59 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 class EvaluationController extends Controller
 {
-    public function index()
-    {
-         $classrooms = ClassRoom::all();
-        $disciplines = Discipline::all();
-        $evaluations = Evaluation::with(['classroom', 'discipline'])->get();
+    
+    public function index(Request $request)
+{
+    $classrooms = ClassRoom::all();
 
-        return view('evaluations.index', compact('evaluations', 'classrooms', 'disciplines'));
+    $disciplines = collect();
+    $evaluations = collect();
+
+    // 🔹 1. Se selecionou turma
+    if ($request->classroom_id) {
+
+        // 🔥 disciplinas da turma MAS só do professor logado
+        $disciplines = Discipline::where('user_id', auth()->id())
+            ->whereHas('classrooms', function ($q) use ($request) {
+                $q->where('classrooms.id', $request->classroom_id);
+            })
+            ->get();
+
+        // 🔹 2. Se selecionou disciplina
+        if ($request->discipline_id) {
+
+            $evaluations = Evaluation::with(['discipline', 'classroom'])
+                ->where('classroom_id', $request->classroom_id)
+                ->where('discipline_id', $request->discipline_id)
+
+                // 🔥 segurança correta (sem user_id na tabela evaluations)
+                ->whereHas('discipline', function ($q) {
+                    $q->where('user_id', auth()->id());
+                })
+
+                ->orderBy('date', 'desc')
+                ->get();
+        }
     }
+
+    return view('evaluations.index', compact(
+        'classrooms',
+        'disciplines',
+        'evaluations'
+    ));
+}
 
     public function create()
     {
-        $classrooms = ClassRoom::all();
-       $disciplines = Discipline::where('user_id', Auth::id())->get();
 
-        return view('evaluations.index', compact('classrooms', 'disciplines'));
+    
+
+  $classrooms = ClassRoom::all();
+        $disciplines = Discipline::all();
+        $evaluations = Evaluation::with(['classroom', 'discipline'])->get();
+
+        return view('evaluations.create', compact('evaluations', 'classrooms', 'disciplines'));
+
     }
 
     public function store(Request $request)
