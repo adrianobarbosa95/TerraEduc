@@ -129,8 +129,11 @@
     {{-- 🔹 ÁREA DE IMPRESSÃO --}}
     <div class="print-area">
 
-        <h4 class="mb-4 text-center">📅 Grade de Horários</h4>
-
+       <h4 class="mb-1  ">📅 Grade de Horários</h4>
+<br>
+<h5 class="text-center mb-4">
+    Professor: {{ auth()->user()->name ?? '---' }}
+</h5>
         @foreach($timeSlots as $shift => $horarios)
 
             <table class="table table-bordered text-center mb-5">
