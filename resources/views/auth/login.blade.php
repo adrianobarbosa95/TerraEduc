@@ -35,7 +35,7 @@
 <div class="card card-login p-4">
 
     <div class="text-center mb-3">
-        <div class="logo">🎓 TerraEduc</div>
+        <div class="logo">TerraEduc🎓</div>
         <small class="text-muted">Sistema Acadêmico</small>
     </div>
 

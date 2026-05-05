@@ -41,7 +41,11 @@
             padding: 0 15px;
             margin-bottom: 15px;
         }
-
+ .sidebar-header span{
+    font-size: 20px;
+    text-align: center;
+    width: 100%;
+ }
         #closeSidebar {
             background: none;
             border: none;
@@ -61,7 +65,7 @@
             display: block;
             color: #cbd5e1;
             padding: 10px 15px;
-            font-size: 14px;
+            font-size: 16px;
             text-decoration: none;
             transition: all 0.3s ease;
             border-left: 3px solid transparent;
@@ -73,6 +77,13 @@
             border-left: 3px solid #60a5fa;
             padding-left: 20px;
         }
+
+        .sidebar a.active {
+    background-color: rgba(96,165,250,0.15);
+    color: #ffffff;
+    border-left: 3px solid #60a5fa;
+    font-weight: 600;
+}
 
         /* TOPBAR */
         .topbar {
@@ -161,19 +172,31 @@
 <div class="sidebar" id="sidebar">
 
     <div class="sidebar-header">
-        <span>🎓 TerraEduc</span>
+        <span>TerraEduc🎓</span>
         <button id="closeSidebar" style="display:none;">✖</button>
     </div>
+<a href="{{ url('/home') }}" 
+   class="{{ request()->is('home') ? 'active' : '' }}">🏠 Início</a>
 
-    <a href="{{ url('/home') }}">🏠 Início</a>
-    <a href="{{ route('students.index') }}">👨‍🎓 Alunos</a>
-    <a href="{{ route('classrooms.index') }}">🏫 Turmas</a>
-    <a href="{{ route('disciplines.index') }}">📚 Disciplinas</a>
-    <a href="{{ route('evaluations.index') }}">📝 Avaliações</a>
-    <a href="{{ route('grades.create') }}">📈 Notas</a>
-    <a href="#">📊 Relatório</a>
-    <a href="{{ route('schedules.index') }}">🕒 Horário</a>
-    <a href="#">⚙️ Configuração</a>
+<a href="{{ route('students.index') }}" 
+   class="{{ request()->routeIs('students.*') ? 'active' : '' }}">👨‍🎓 Alunos</a>
+
+<a href="{{ route('classrooms.index') }}" 
+   class="{{ request()->routeIs('classrooms.*') ? 'active' : '' }}">🏫 Turmas</a>
+
+<a href="{{ route('disciplines.index') }}" 
+   class="{{ request()->routeIs('disciplines.*') ? 'active' : '' }}">📚 Disciplinas</a>
+
+<a href="{{ route('evaluations.index') }}" 
+   class="{{ request()->routeIs('evaluations.*') ? 'active' : '' }}">📝 Avaliações</a>
+
+<a href="{{ route('grades.create') }}" 
+   class="{{ request()->routeIs('grades.*') ? 'active' : '' }}">📈 Notas</a>
+
+<a href="{{ route('schedules.index') }}" 
+   class="{{ request()->routeIs('schedules.*') ? 'active' : '' }}">🕒 Horário</a>
+   <a href="#">⚙️ Configuração</a>
+   <a href="#">📊 Relatório</a>
 
 </div>
 

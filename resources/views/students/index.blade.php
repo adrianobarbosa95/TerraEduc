@@ -4,7 +4,6 @@
 
 <div class="container-fluid">
 
-```
 <h4 class="mb-4">Alunos</h4>
 
 {{-- ================= IMPORTAR ================= --}}
@@ -163,7 +162,7 @@
 
     </div>
 </div>
-```
+ 
 
 </div>
 

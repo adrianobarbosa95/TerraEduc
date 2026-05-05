@@ -36,7 +36,7 @@
 
     <!-- LOGO -->
     <div class="text-center mb-3">
-        <div class="logo">🎓 TerraEduc</div>
+        <div class="logo">TerraEduc🎓</div>
         <small class="text-muted">Login do Aluno</small>
     </div>
 
