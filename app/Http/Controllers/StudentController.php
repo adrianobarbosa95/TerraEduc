@@ -8,8 +8,8 @@ use App\Models\StudentClassroomHistory;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-// use Maatwebsite\Excel\Facades\Excel;
-use PhpOffice\PhpSpreadsheet\IOFactory;
+ 
+ 
 
 class StudentController extends Controller
 {
@@ -140,6 +140,9 @@ public function import(Request $request)
 
         $rows = $dom->getElementsByTagName('tr');
 
+        $created = 0;
+        $updated = 0;
+
         foreach ($rows as $row) {
 
             $cols = $row->getElementsByTagName('td');
@@ -149,14 +152,45 @@ public function import(Request $request)
             $registration = trim($cols->item(1)->nodeValue);
             $name = trim($cols->item(2)->nodeValue);
 
-            // ignora cabeçalho
             if ($registration == 'Matrícula') continue;
 
-            // 🔥 evita duplicar aluno
-            if (Student::where('registration', $registration)->exists()) {
+            $student = Student::where('registration', $registration)->first();
+
+            // 🔁 SE JÁ EXISTE → ATUALIZA
+            if ($student) {
+
+                if ($student->classroom_id != $request->classroom_id) {
+
+                    // fecha histórico atual
+                    $current = StudentClassroomHistory::where('student_id', $student->id)
+                        ->whereNull('left_at')
+                        ->first();
+
+                    if ($current) {
+                        $current->update([
+                            'left_at' => now()
+                        ]);
+                    }
+
+                    // novo histórico
+                    StudentClassroomHistory::create([
+                        'student_id' => $student->id,
+                        'classroom_id' => $request->classroom_id,
+                        'year' => now()->year,
+                        'entered_at' => now(),
+                    ]);
+
+                    $student->update([
+                        'classroom_id' => $request->classroom_id
+                    ]);
+
+                    $updated++;
+                }
+
                 continue;
             }
 
+            // 🆕 NOVO ALUNO
             $firstName = Str::ascii(strtolower(explode(' ', trim($name))[0] ?? ''));
 
             $student = Student::create([
@@ -166,19 +200,21 @@ public function import(Request $request)
                 'classroom_id' => $request->classroom_id
             ]);
 
-            // 🔥 CRIA HISTÓRICO
             StudentClassroomHistory::create([
                 'student_id' => $student->id,
                 'classroom_id' => $request->classroom_id,
                 'year' => now()->year,
                 'entered_at' => now(),
             ]);
+
+            $created++;
         }
 
-        return back()->with('success', 'Alunos importados com histórico!');
+        return back()->with('success',
+            "Importação concluída! Novos: $created | Atualizados: $updated"
+        );
 
     } catch (\Exception $e) {
-
         return back()->with('error', $e->getMessage());
     }
 }
