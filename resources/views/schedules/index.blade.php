@@ -1,8 +1,35 @@
 @extends('layouts.main')
 
 @section('content')
+@php
+    $hoje = \Carbon\Carbon::now();
 
+    $diaAtualTexto = $hoje->dayOfWeek;
+
+    $diaAtual = $hoje->format('d/m/Y') . ' - ' . match($hoje->dayOfWeek) {
+        0 => 'Domingo',
+        1 => 'Segunda',
+        2 => 'Terça',
+        3 => 'Quarta',
+        4 => 'Quinta',
+        5 => 'Sexta',
+        6 => 'Sábado',
+    };
+@endphp
 <style>
+    .dia-hoje {
+        
+    color: #6e0000 !important; /* laranja elegante */
+    /* font-weight: bold; */
+}
+
+/* na impressão não muda nada */
+@media print {
+    .dia-hoje {
+        color: inherit !important;
+        font-weight: bold !important;
+    }
+}
     body {
         background: #f8f9fa;
         font-size: 14px;
@@ -134,6 +161,10 @@
 <h5 class="text-center mb-4">
     Professor: {{ auth()->user()->name ?? '---' }}
 </h5>
+  <p class="text-center mb-3">
+            <strong></strong> {{ $diaAtual }}
+        </p>
+        {{ $diaAtualTexto++ }}
         @foreach($timeSlots as $shift => $horarios)
 
             <table class="table table-bordered text-center mb-5">
@@ -152,9 +183,11 @@
                 <tr class="table-secondary">
                     <th>Horário</th>
 
-                    @foreach($days as $day)
-                        <th>{{ $day }}</th>
-                    @endforeach
+                  @foreach($days as $dayKey => $dayName)
+    <th class="{{ $dayKey == $diaAtualTexto ? 'dia-hoje' : '' }}">
+        {{ $dayName }}     
+    </th>
+@endforeach
                 </tr>
 
                 {{-- LINHAS --}}
