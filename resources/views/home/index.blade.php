@@ -88,12 +88,12 @@
 
         <!-- Relatórios -->
         <div class="col-md-3">
-            <a href="#" class="text-decoration-none">
+            <a href="{{route("evaluations.index")}}" class="text-decoration-none">
                 <div class="card shadow-sm h-100">
                     <div class="card-body text-center">
-                        <div style="font-size: 30px;">📊</div>
-                        <h5 class="card-title mt-2">Relatórios</h5>
-                        <p class="text-muted small">Análises e dados</p>
+                        <div style="font-size: 30px;">📝</div>
+                        <h5 class="card-title mt-2">Avaliações</h5>
+                        <p class="text-muted small">Avaliações das Unidades</p>
                     </div>
                 </div>
             </a>
