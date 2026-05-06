@@ -74,6 +74,13 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
+    document.addEventListener('wheel', function (e) {
+
+    if (document.activeElement.classList.contains('grade-input')) {
+        document.activeElement.blur();
+    }
+
+}, { passive: true });
     document.addEventListener('focusin', function (e) {
 
     if (!e.target.classList.contains('grade-input')) return;
