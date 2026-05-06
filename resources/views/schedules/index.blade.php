@@ -164,7 +164,7 @@
   <p class="text-center mb-3">
             <strong></strong> {{ $diaAtual }}
         </p>
-        {{ $diaAtualTexto++ }}
+        {{ $diaAtualTexto++ ? '' : ''}}
         @foreach($timeSlots as $shift => $horarios)
 
             <table class="table table-bordered text-center mb-5">
