@@ -39,7 +39,7 @@ class EvaluationController extends Controller
                     $q->where('user_id', auth()->id());
                 })
 
-                ->orderBy('date', 'desc')
+                ->orderBy('unit', 'asc')
                 ->get();
         }
     }
@@ -166,5 +166,60 @@ $disciplines = $classroom->disciplines()
         'disciplines' => $disciplines,
         'units' => $classroom->units // 2 ou 3
     ]);
+}
+
+public function editUnit(Request $request)
+{
+    $classrooms = ClassRoom::all();
+    $disciplines = Discipline::all();
+
+    $evaluations = collect();
+
+    if ($request->classroom_id && $request->discipline_id && $request->unit) {
+
+        $evaluations = Evaluation::where('classroom_id', $request->classroom_id)
+            ->where('discipline_id', $request->discipline_id)
+            ->where('unit', $request->unit)
+            ->get();
+    }
+
+    return view('evaluations.edit-unit', compact(
+        'classrooms',
+        'disciplines',
+        'evaluations'
+    ));
+}
+public function updateUnit(Request $request)
+{
+    foreach ($request->evaluations as $id => $data) {
+
+        // 🟢 NOVA AVALIAÇÃO
+        if (!is_numeric($id)) {
+
+            Evaluation::create([
+                'name' => $data['name'],
+                'date' => $data['date'] ?? null,
+                'value' => $data['value'] ?? null,
+                'description' => $data['description'] ?? null,
+                'classroom_id' => $request->classroom_id ?? null,
+                'discipline_id' => $request->discipline_id ?? null,
+                'unit' => $request->unit ?? null,
+            ]);
+
+            continue;
+        }
+
+        // 🔵 ATUALIZA EXISTENTE
+        Evaluation::where('id', $id)->update([
+            'name' => $data['name'],
+            'date' => $data['date'] ?? null,
+            'value' => $data['value'] ?? null,
+            'description' => $data['description'] ?? null,
+        ]);
+    }
+
+    return redirect()
+        ->route('evaluations.index')
+        ->with('success', 'Avaliações atualizadas com sucesso!');
 }
 }

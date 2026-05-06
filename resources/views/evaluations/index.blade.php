@@ -67,7 +67,19 @@
             </div>
 
         </form>
+@if($evaluations->count())
 
+    <div class="d-flex justify-content-end mb-3">
+
+        <a href="{{ route('evaluations.edit.unit', [
+            'classroom_id' => request('classroom_id'),
+            'discipline_id' => request('discipline_id'),
+            'unit' => request('unit')
+        ]) }}" class="btn btn-warning">
+            ✏️ Editar Avaliações da Unidade
+        </a>
+
+    </div>
         {{-- ================= LISTA ================= --}}
         <div class="card shadow-sm">
 
@@ -152,7 +164,7 @@
             </div>
 
         </div>
-
+@endif
     </div>
 
 @endsection

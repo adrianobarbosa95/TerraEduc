@@ -38,6 +38,13 @@ Route::middleware('auth:students')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
+
+Route::get('/evaluations/edit-unit', [EvaluationController::class, 'editUnit'])
+    ->name('evaluations.edit.unit');
+
+Route::post('/evaluations/update-unit', [EvaluationController::class, 'updateUnit'])
+    ->name('evaluations.update.unit');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -81,6 +88,11 @@ Route::post('/students/change-classroom', [StudentController::class, 'changeClas
     ->name('students.changeClassroom');
 Route::post('/students/bulk-delete', [StudentController::class, 'bulkDelete'])
     ->name('students.bulkDelete');
+
+
+
+    
+
     });
 
 
