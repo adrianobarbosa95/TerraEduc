@@ -109,7 +109,9 @@
             .sidebar.show {
                 margin-left: 0;
             }
-
+#titlemenu{
+    display: none;
+}
             .topbar,
             .content,
             footer {
@@ -156,7 +158,7 @@
 
         <div class="d-flex align-items-center">
             <button id="toggleBtn">☰</button>
-            <span class="fw-semibold text-secondary ms-2">Sistema Acadêmico</span>
+            <span id="titlemenu" class="fw-semibold text-secondary ms-2">Sistema Acadêmico</span>
         </div>
 
         <div>
