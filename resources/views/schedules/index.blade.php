@@ -60,10 +60,18 @@
     .print-btn {
         margin-bottom: 15px;
     }
+ .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
 
+table {
+    width: 100%;
+}
     /* 🔹 IMPRESSÃO */
     @media print {
 
+       
     body * {
         visibility: hidden;
     }
@@ -164,8 +172,9 @@
   <p class="text-center mb-3">
             <strong></strong> {{ $diaAtual }}
         </p>
-        {{ $diaAtualTexto++ ? '' : ''}}
+        
         @foreach($timeSlots as $shift => $horarios)
+<div class="table-responsive">
 
             <table class="table table-bordered text-center mb-5">
 
@@ -184,7 +193,7 @@
                     <th>Horário</th>
 
                   @foreach($days as $dayKey => $dayName)
-    <th class="{{ $dayKey == $diaAtualTexto ? 'dia-hoje' : '' }}">
+    <th class="{{(int)$dayKey-1 === (int)$diaAtualTexto ? 'dia-hoje' : '' }}">
         {{ $dayName }}     
     </th>
 @endforeach
@@ -230,7 +239,7 @@
                 @endforeach
 
             </table>
-
+</div>
         @endforeach
 
     </div>
