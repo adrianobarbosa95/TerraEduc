@@ -155,7 +155,7 @@
     <div class="container-fluid d-flex justify-content-between align-items-center">
 
         <div class="d-flex align-items-center">
-            <button id="toggleBtn">⮜</button>
+            <button id="toggleBtn">☰</button>
             <span class="fw-semibold text-secondary ms-2">Sistema Acadêmico</span>
         </div>
 
@@ -206,7 +206,7 @@
         content.classList.add('expanded');
         topbar.classList.add('expanded');
         footer.classList.add('expanded');
-        toggleBtn.innerHTML = '⮞';
+        toggleBtn.innerHTML = '☰';
     }
 
     toggleBtn.addEventListener('click', () => {
@@ -220,7 +220,7 @@
             footer.classList.toggle('expanded');
 
             toggleBtn.innerHTML =
-                sidebar.classList.contains('collapsed') ? '⮞' : '⮜';
+                sidebar.classList.contains('collapsed') ? '☰' : '✖';
         }
     });
 
