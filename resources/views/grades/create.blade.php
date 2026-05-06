@@ -74,6 +74,17 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
+    document.addEventListener('focusin', function (e) {
+
+    if (!e.target.classList.contains('grade-input')) return;
+
+    const input = e.target;
+
+    if (input.value == "0") {
+        input.value = ""; // limpa o zero automaticamente
+    }
+
+});
 // ===============================
 // CARREGAR DISCIPLINAS
 // ===============================
