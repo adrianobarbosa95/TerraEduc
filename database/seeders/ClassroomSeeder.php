@@ -5,7 +5,7 @@ use App\Models\ClassRoom;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 class ClassroomSeeder extends Seeder
-{
+{  
     /**
      * Run the database seeds.
      */
