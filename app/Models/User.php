@@ -7,7 +7,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-
+use Illuminate\Support\Str;
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
@@ -18,12 +18,11 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-    ];
-
+  
+protected $fillable = [
+    'name','email','password','slug','bio','photo',
+    'github','linkedin','instagram','website','lattes'
+];
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -49,4 +48,25 @@ public function disciplines()
             'password' => 'hashed',
         ];
     }
+   protected static function boot()
+{
+    parent::boot();
+
+    static::creating(function ($user) {
+
+        if (!$user->slug) {
+
+            $originalSlug = Str::slug($user->name ?? 'usuario');
+            $slug = $originalSlug;
+            $i = 1;
+
+            while (self::where('slug', $slug)->exists()) {
+                $slug = "{$originalSlug}-{$i}";
+                $i++;
+            }
+
+            $user->slug = $slug;
+        }
+    });
+}
 }

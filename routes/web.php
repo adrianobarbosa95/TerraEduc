@@ -7,6 +7,7 @@ use App\Http\Controllers\ClassRoomController;
 use App\Http\Controllers\DisciplineController;
 use App\Http\Controllers\GradeController;
 use App\Http\Controllers\PlanController;
+use App\Http\Controllers\ProfessorController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\StudentController;
@@ -36,7 +37,12 @@ Route::middleware('auth:students')->group(function () {
         ->name('student.dashboard');
     Route::get('/aluno/disciplina/{id}/plano', [StudentDisciplineController::class, 'plan'])->name('student.discipline.plan');
 });
+ 
 
+Route::get('/professores/{slug}', [ProfessorController::class, 'show']);
+Route::get('/adrianobarbosa', function () {
+    return redirect('/professores/adriano-barbosa');
+});
 Route::middleware('auth')->group(function () {
 
 Route::get('/evaluations/edit-unit', [EvaluationController::class, 'editUnit'])

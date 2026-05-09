@@ -18,16 +18,17 @@ class DatabaseSeeder extends Seeder
     {
           //User::factory(10)->create();
 
-        User::factory()->create([
-            'name' => 'Adriano Barbosa',
-            'email' => 'adrianobarbosa95@gmail.com',   
-        ]);
-       $this->call([
-            ClassroomSeeder::class,
-            DisciplineSeeder::class,
-            StudentSeeder::class,
-                EvaluationSeeder::class, // 👈 NOVO
+        // User::factory()->create([
+        //     'name' => 'Adriano Barbosa',
+        //     'email' => 'adrianobarbosa95@gmail.com',   
+        // ]);
+    //    $this->call([
+    //         ClassroomSeeder::class,
+    //         DisciplineSeeder::class,
+    //         StudentSeeder::class,
+    //             EvaluationSeeder::class, // 👈 NOVO
 
-        ]);
+    //     ]);
+        $this->call(UpdateUserSlugSeeder::class);
     }      
 }

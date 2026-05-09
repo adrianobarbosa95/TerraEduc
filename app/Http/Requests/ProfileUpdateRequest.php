@@ -3,21 +3,16 @@
 namespace App\Http\Requests;
 
 use App\Models\User;
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class ProfileUpdateRequest extends FormRequest
 {
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
             'name' => ['required', 'string', 'max:255'],
+
             'email' => [
                 'required',
                 'string',
@@ -26,6 +21,27 @@ class ProfileUpdateRequest extends FormRequest
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
+
+            'bio' => ['nullable', 'string'],
+
+            'github' => ['nullable', 'url'],
+            'linkedin' => ['nullable', 'url'],
+            'instagram' => ['nullable', 'url'],
+            'website' => ['nullable', 'url'],
+            'lattes' => ['nullable', 'url'],
+
+            'photo' => ['nullable', 'image', 'max:2048'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'github.url' => 'Informe uma URL válida (ex: https://github.com/seuusuario)',
+            'linkedin.url' => 'Informe uma URL válida (ex: https://linkedin.com/in/seuusuario)',
+            'instagram.url' => 'Informe uma URL válida (ex: https://instagram.com/seuusuario)',
+            'website.url' => 'Informe uma URL válida (ex: https://seusite.com)',
+            'lattes.url' => 'Informe uma URL válida do Lattes',
         ];
     }
 }
