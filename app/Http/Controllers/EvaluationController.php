@@ -15,26 +15,32 @@ class EvaluationController extends Controller
     $classrooms = ClassRoom::all();
 
     $disciplines = collect();
-    $evaluations = collect();
 
-    // 🔹 1. Se selecionou turma
+    // 🔥 CARREGA TODAS AS AVALIAÇÕES DO PROFESSOR
+    $evaluations = Evaluation::with(['discipline', 'classroom'])
+        ->whereHas('discipline', function ($q) {
+            $q->where('user_id', auth()->id());
+        })
+        ->orderBy('classroom_id')
+        ->orderBy('unit')
+        ->get();
+
+    // 🔹 FILTRO POR TURMA
     if ($request->classroom_id) {
 
-        // 🔥 disciplinas da turma MAS só do professor logado
         $disciplines = Discipline::where('user_id', auth()->id())
             ->whereHas('classrooms', function ($q) use ($request) {
                 $q->where('classrooms.id', $request->classroom_id);
             })
             ->get();
 
-        // 🔹 2. Se selecionou disciplina
+        // 🔹 FILTRO POR DISCIPLINA
         if ($request->discipline_id) {
 
             $evaluations = Evaluation::with(['discipline', 'classroom'])
                 ->where('classroom_id', $request->classroom_id)
                 ->where('discipline_id', $request->discipline_id)
 
-                // 🔥 segurança correta (sem user_id na tabela evaluations)
                 ->whereHas('discipline', function ($q) {
                     $q->where('user_id', auth()->id());
                 })
@@ -50,6 +56,8 @@ class EvaluationController extends Controller
         'evaluations'
     ));
 }
+
+   
 
     public function create()
     {
