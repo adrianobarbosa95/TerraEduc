@@ -75,7 +75,7 @@
         <img src="{{ $professor->photo ? asset('storage/'.$professor->photo) : 'https://via.placeholder.com/150' }}"
              class="rounded-circle profile-img mx-auto">
 
-        <h2 class="mt-3 name">{{ $professor->name }}</h2>
+        <h2 class="mt-3 name">Prof {{ $professor->name }}</h2>
 
         {{-- opcional remover email --}}
         <p class="text-muted">{{ $professor->email }}</p>
