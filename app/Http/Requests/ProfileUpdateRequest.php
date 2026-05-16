@@ -30,7 +30,7 @@ class ProfileUpdateRequest extends FormRequest
             'website' => ['nullable', 'url'],
             'lattes' => ['nullable', 'url'],
 
-            'photo' => ['nullable', 'image', 'max:2048'],
+            'photo' => ['nullable', 'image', 'max:5120'],
         ];
     }
 
