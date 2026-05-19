@@ -18,7 +18,7 @@ public function fullReport()
 {
     $teacherId = Auth::id();
 
-    $classrooms = \App\Models\Classroom::whereHas('disciplines', function ($q) use ($teacherId) {
+    $classrooms = \App\Models\ClassRoom::whereHas('disciplines', function ($q) use ($teacherId) {
     $q->where('user_id', $teacherId);
 })->with('disciplines')->get();
 
