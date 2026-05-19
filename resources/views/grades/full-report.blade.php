@@ -3,7 +3,15 @@
 @section('content')
 
 <style>
+.mobile-table{
+    width:100%;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+}
 
+.mobile-table table{
+    min-width:700px;
+}
     body{
         background:#f4f6f9;
     }
@@ -169,6 +177,62 @@
     .table-report tbody tr:hover{
         background:#f8fafc;
     }
+    @media (max-width: 768px){
+
+    .page-title{
+        font-size:22px;
+    }
+
+    .page-subtitle{
+        font-size:13px;
+    }
+
+    .report-header h3{
+        font-size:16px;
+    }
+
+    .report-meta{
+        font-size:11px;
+    }
+
+    .discipline-title{
+        font-size:14px;
+        padding:8px 10px;
+    }
+
+    .table-report{
+        font-size:10px;
+    }
+
+    .student-col{
+        min-width:170px;
+        font-size:10px;
+    }
+
+    .grade-col{
+        width:55px;
+    }
+
+    .total-col{
+        width:60px;
+    }
+
+    .report-toolbar{
+        flex-direction:column;
+    }
+
+    .report-toolbar .btn{
+        width:100%;
+    }
+
+    .legend{
+        gap:8px;
+    }
+
+    .legend-item{
+        font-size:10px;
+    }
+}
 
     @media print {
 
@@ -395,8 +459,8 @@
                             📚 {{ $disc['discipline']->name }}
                         </div>
 
-                        <div class="table-responsive">
-
+                        
+<div class="table-responsive mobile-table">
                             <table class="table table-bordered table-report">
 
                                 <thead>
