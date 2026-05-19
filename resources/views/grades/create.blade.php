@@ -94,7 +94,25 @@
     }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<style>
+    .total-aprovado {
+        background: #d1e7dd !important;
+        color: #0f5132;
+        font-weight: bold;
+    }
 
+    .total-reprovado {
+        background: #f8d7da !important;
+        color: #842029;
+        font-weight: bold;
+    }
+
+    .total-recuperacao {
+        background: #fff3cd !important;
+        color: #664d03;
+        font-weight: bold;
+    }
+</style>
 <script>
     document.addEventListener('wheel', function (e) {
 
@@ -234,7 +252,17 @@ function loadTable() {
                     </td>`;
                 });
 
-                html += `<td class="total">${total.toFixed(1)}</td></tr>`;
+                let totalClass = '';
+
+if (total >= 5) {
+    totalClass = 'total-aprovado';
+} else if (total >= 3) {
+    totalClass = 'total-recuperacao';
+} else {
+    totalClass = 'total-reprovado';
+}
+
+html += `<td class="total ${totalClass}">${total.toFixed(1)}</td></tr>`;
             });
 
             html += `</tbody></table>`;
@@ -259,7 +287,27 @@ function calcRow(input) {
         total += parseFloat(i.value || 0);
     });
 
-    row.querySelector('.total').innerText = total.toFixed(1);
+    const totalCell = row.querySelector('.total');
+
+    totalCell.innerText = total.toFixed(1);
+
+    // remove classes antigas
+    totalCell.classList.remove(
+        'total-aprovado',
+        'total-recuperacao',
+        'total-reprovado'
+    );
+
+    // adiciona nova classe
+    if (total >= 5) {
+        totalCell.classList.add('total-aprovado');
+
+    } else if (total >= 3) {
+        totalCell.classList.add('total-recuperacao');
+
+    } else {
+        totalCell.classList.add('total-reprovado');
+    }
 }
 
 
