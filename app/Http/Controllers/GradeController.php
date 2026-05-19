@@ -13,189 +13,192 @@ use Illuminate\Support\Facades\Auth;
 
 class GradeController extends Controller
 {
-public function fullReport()
-{
-    $teacherId = Auth::id();
+    public function fullReport()
+    {
+        $teacherId = Auth::id();
 
-    $classrooms = \App\Models\ClassRoom::whereHas(
-        'disciplines',
-        function ($q) use ($teacherId) {
+        $classrooms = \App\Models\ClassRoom::whereHas(
+            'disciplines',
+            function ($q) use ($teacherId) {
 
-            $q->where('user_id', $teacherId);
-        }
-    )
-    ->with([
-        'disciplines',
-        'students'
-    ])
-    ->get();
-
-    $report = [];
-
-    foreach ($classrooms as $classroom) {
-
-        $disciplines = $classroom->disciplines
-            ->unique('id')
-            ->values();
-
-        $disciplineData = [];
-
-        foreach ($disciplines as $discipline) {
-
-            $evaluations = \App\Models\Evaluation::where(
-                'discipline_id',
-                $discipline->id
-            )
-            ->distinct()
-            ->orderBy('id')
+                $q->where('user_id', $teacherId);
+            }
+        )
+            ->with([
+                'disciplines',
+                'students'
+            ])
             ->get();
 
-            $students = $classroom->students;
+        $report = [];
 
-            $grades = \App\Models\Grade::whereIn(
-                'evaluation_id',
-                $evaluations->pluck('id')
-            )->get();
+        foreach ($classrooms as $classroom) {
 
-            $disciplineData[] = [
-                'discipline' => $discipline,
-                'evaluations' => $evaluations,
-                'students' => $students,
-                'grades' => $grades,
+            $disciplines = $classroom->disciplines
+                ->unique('id')
+                ->values();
+
+            $disciplineData = [];
+
+            foreach ($disciplines as $discipline) {
+
+                $evaluations = \App\Models\Evaluation::where(
+                    'discipline_id',
+                    $discipline->id
+                )
+                    ->where(
+                        'classroom_id',
+                        $classroom->id
+                    )
+                    ->orderBy('id')
+                    ->get();
+
+                $students = $classroom->students;
+
+                $grades = \App\Models\Grade::whereIn(
+                    'evaluation_id',
+                    $evaluations->pluck('id')
+                )->get();
+
+                $disciplineData[] = [
+                    'discipline' => $discipline,
+                    'evaluations' => $evaluations,
+                    'students' => $students,
+                    'grades' => $grades,
+                ];
+            }
+
+            $report[] = [
+                'classroom' => $classroom,
+                'disciplines' => $disciplineData,
             ];
         }
 
-        $report[] = [
-            'classroom' => $classroom,
-            'disciplines' => $disciplineData,
-        ];
+        return view('grades.full-report', compact('report'));
     }
-
-    return view('grades.full-report', compact('report'));
-}
     public function index()
     {
         // $grades = Grade::all();
         // return view('grades.index', compact('grades'));
     }
     public function show(Evaluation $evaluation)
-{
-    // 🔹 Alunos da turma da avaliação
-    $students = Student::where('classroom_id', $evaluation->classroom_id)
-        ->orderBy('name')
-        ->get();
+    {
+        // 🔹 Alunos da turma da avaliação
+        $students = Student::where('classroom_id', $evaluation->classroom_id)
+            ->orderBy('name')
+            ->get();
 
-    // 🔹 Notas já lançadas dessa avaliação
-    $grades = Grade::where('evaluation_id', $evaluation->id)
-        ->get();
+        // 🔹 Notas já lançadas dessa avaliação
+        $grades = Grade::where('evaluation_id', $evaluation->id)
+            ->get();
 
-    return view('grades.show', compact(
-        'evaluation',
-        'students',
-        'grades'
-    ));
-}
-
-public function store(Request $request)
-{
-    if (!$request->grades) {
-        return back()->with('error', 'Nenhuma nota enviada.');
+        return view('grades.show', compact(
+            'evaluation',
+            'students',
+            'grades'
+        ));
     }
 
-    foreach ($request->grades as $studentId => $evaluations) {
-
-        foreach ($evaluations as $evaluationId => $value) {
-
-            // 🔥 vazio vira 0
-            $value = ($value !== null && $value !== '') ? $value : 0;
-
-            \App\Models\Grade::updateOrCreate(
-                [
-                    'student_id' => $studentId,
-                    'evaluation_id' => $evaluationId
-                ],
-                [
-                    'value' => $value
-                ]
-            );
+    public function store(Request $request)
+    {
+        if (!$request->grades) {
+            return back()->with('error', 'Nenhuma nota enviada.');
         }
+
+        foreach ($request->grades as $studentId => $evaluations) {
+
+            foreach ($evaluations as $evaluationId => $value) {
+
+                // 🔥 vazio vira 0
+                $value = ($value !== null && $value !== '') ? $value : 0;
+
+                \App\Models\Grade::updateOrCreate(
+                    [
+                        'student_id' => $studentId,
+                        'evaluation_id' => $evaluationId
+                    ],
+                    [
+                        'value' => $value
+                    ]
+                );
+            }
+        }
+
+        return redirect()->back()->with('success', 'Notas salvas com sucesso!');
     }
+    public function getDisciplines($id)
+    {
+        $classroom = ClassRoom::findOrFail($id);
 
-    return redirect()->back()->with('success', 'Notas salvas com sucesso!');
-}
-public function getDisciplines($id)
-{
-     $classroom = ClassRoom::findOrFail($id);
+        $disciplines = $classroom->disciplines()
+            ->where('user_id', Auth::id()) // 🔥 FILTRO AQUI
+            ->get();
 
-    $disciplines = $classroom->disciplines()
-        ->where('user_id', Auth::id()) // 🔥 FILTRO AQUI
-        ->get();
-
-    return response()->json($disciplines);
-}
+        return response()->json($disciplines);
+    }
     /**
      * Display a listing of the resource.
      */
-    
 
-public function getData(Request $request)
-{
-    $classroomId = $request->classroom_id;
-    $disciplineId = $request->discipline_id;
-    $unit = $request->unit;
 
-    // 🔒 VALIDAR SE A DISCIPLINA É DO PROFESSOR LOGADO
-    $discipline = \App\Models\Discipline::where('id', $disciplineId)
-        ->where('user_id', Auth::id())
-        ->first();
+    public function getData(Request $request)
+    {
+        $classroomId = $request->classroom_id;
+        $disciplineId = $request->discipline_id;
+        $unit = $request->unit;
 
-    if (!$discipline) {
+        // 🔒 VALIDAR SE A DISCIPLINA É DO PROFESSOR LOGADO
+        $discipline = \App\Models\Discipline::where('id', $disciplineId)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if (!$discipline) {
+            return response()->json([
+                'error' => 'Disciplina inválida.'
+            ], 403);
+        }
+
+        // 👇 alunos
+        $students = Student::where('classroom_id', $classroomId)->get();
+
+        // 👇 avaliações (agora seguro)
+        $evaluations = Evaluation::where([
+            'classroom_id' => $classroomId,
+            'discipline_id' => $disciplineId,
+            'unit' => $unit
+        ])->get();
+
+        // 👇 notas
+        $grades = Grade::whereIn('evaluation_id', $evaluations->pluck('id'))
+            ->whereIn('student_id', $students->pluck('id'))
+            ->get();
+
         return response()->json([
-            'error' => 'Disciplina inválida.'
-        ], 403);
+            'students' => $students,
+            'evaluations' => $evaluations,
+            'grades' => $grades
+        ]);
     }
-
-    // 👇 alunos
-    $students = Student::where('classroom_id', $classroomId)->get();
-
-    // 👇 avaliações (agora seguro)
-    $evaluations = Evaluation::where([
-        'classroom_id' => $classroomId,
-        'discipline_id' => $disciplineId,
-        'unit' => $unit
-    ])->get();
-
-    // 👇 notas
-    $grades = Grade::whereIn('evaluation_id', $evaluations->pluck('id'))
-        ->whereIn('student_id', $students->pluck('id'))
-        ->get();
-
-    return response()->json([
-        'students' => $students,
-        'evaluations' => $evaluations,
-        'grades' => $grades
-    ]);
-}
 
     /**
      * Show the form for creating a new resource.
      */
-     
+
 
     /**
      * Store a newly created resource in storage.
      */
-     public function create()
-{
-    $classrooms = ClassRoom::all();
+    public function create()
+    {
+        $classrooms = ClassRoom::all();
 
-    return view('grades.create', compact('classrooms'));
-}
+        return view('grades.create', compact('classrooms'));
+    }
 
     /**
      * Display the specified resource.
      */
-    
+
 
     /**
      * Show the form for editing the specified resource.
@@ -220,31 +223,31 @@ public function getData(Request $request)
     {
         //
     }
-//   public function data(Request $request)
-// {
-//     $classroomId = $request->classroom_id;
-//     $disciplineId = $request->discipline_id;
-//     $unit = $request->unit;
+    //   public function data(Request $request)
+    // {
+    //     $classroomId = $request->classroom_id;
+    //     $disciplineId = $request->discipline_id;
+    //     $unit = $request->unit;
 
-//     // 🔥 alunos da turma
-//     $students = \App\Models\Student::where('classroom_id', $classroomId)->get();
+    //     // 🔥 alunos da turma
+    //     $students = \App\Models\Student::where('classroom_id', $classroomId)->get();
 
-//     // 🔥 avaliações da turma/disciplina/unidade
-//     $evaluations = \App\Models\Evaluation::where([
-//         'classroom_id' => $classroomId,
-//         'discipline_id' => $disciplineId,
-//         'unit' => $unit
-//     ])->get();
+    //     // 🔥 avaliações da turma/disciplina/unidade
+    //     $evaluations = \App\Models\Evaluation::where([
+    //         'classroom_id' => $classroomId,
+    //         'discipline_id' => $disciplineId,
+    //         'unit' => $unit
+    //     ])->get();
 
-//     // 🔥 NOTAS (AQUI ESTAVA O ERRO PROVAVEL)
-//     $grades = \App\Models\Grade::whereIn('evaluation_id', $evaluations->pluck('id'))
-//         ->whereIn('student_id', $students->pluck('id'))
-//         ->get();
-// dd($grades);
-//     return response()->json([
-//         'students' => $students,
-//         'evaluations' => $evaluations,
-//         'grades' => $grades
-//     ]);
-// }
+    //     // 🔥 NOTAS (AQUI ESTAVA O ERRO PROVAVEL)
+    //     $grades = \App\Models\Grade::whereIn('evaluation_id', $evaluations->pluck('id'))
+    //         ->whereIn('student_id', $students->pluck('id'))
+    //         ->get();
+    // dd($grades);
+    //     return response()->json([
+    //         'students' => $students,
+    //         'evaluations' => $evaluations,
+    //         'grades' => $grades
+    //     ]);
+    // }
 }
