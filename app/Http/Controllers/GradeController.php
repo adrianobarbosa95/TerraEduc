@@ -13,6 +13,53 @@ use Illuminate\Support\Facades\Auth;
 
 class GradeController extends Controller
 {
+
+public function fullReport()
+{
+    $teacherId = Auth::id();
+
+    $classrooms = \App\Models\Classroom::whereHas('disciplines', function ($q) use ($teacherId) {
+    $q->where('user_id', $teacherId);
+})->with('disciplines')->get();
+
+    $report = [];
+
+    foreach ($classrooms as $classroom) {
+
+        $disciplines = $classroom->disciplines;
+
+        $disciplineData = [];
+
+        foreach ($disciplines as $discipline) {
+
+            $evaluations = \App\Models\Evaluation::where(
+                'discipline_id',
+                $discipline->id
+            )->get();
+
+            $students = $classroom->students;
+
+            $grades = \App\Models\Grade::whereIn(
+                'evaluation_id',
+                $evaluations->pluck('id')
+            )->get();
+
+            $disciplineData[] = [
+                'discipline' => $discipline,
+                'evaluations' => $evaluations,
+                'students' => $students,
+                'grades' => $grades,
+            ];
+        }
+
+        $report[] = [
+            'classroom' => $classroom,
+            'disciplines' => $disciplineData,
+        ];
+    }
+
+    return view('grades.full-report', compact('report'));
+}
     public function index()
     {
         // $grades = Grade::all();

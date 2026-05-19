@@ -1,198 +1,202 @@
 @extends('layouts.main')
 
 @section('content')
+    <div class="container mt-4">
 
-<div class="container mt-4">
+        <h4 class="mb-4">Lançamento de Notas</h4>
 
-    <h4 class="mb-4">Lançamento de Notas</h4>
+        {{-- FILTROS --}}
+        <div class="row mb-3">
 
-    {{-- FILTROS --}}
-    <div class="row mb-3">
+            <div class="col-md-4">
+                <label>Turma</label>
+                <select id="classroom" class="form-control">
+                    <option value="">Selecione</option>
+                    @foreach ($classrooms as $c)
+                        <option value="{{ $c->id }}" data-period="{{ $c->period }}">
+                            {{ $c->name }} ({{ $c->year }})
+                        </option>
+                    @endforeach
+                </select>
+            </div>
 
-        <div class="col-md-4">
-            <label>Turma</label>
-            <select id="classroom" class="form-control">
-                <option value="">Selecione</option>
-                @foreach($classrooms as $c)
-                    <option value="{{ $c->id }}" data-period="{{ $c->period }}">
-                        {{ $c->name }} ({{ $c->year }})
-                    </option>
-                @endforeach
-            </select>
+            <div class="col-md-4">
+                <label>Disciplina</label>
+                <select id="discipline" class="form-control"></select>
+            </div>
+
+            <div class="col-md-2">
+                <label>Unidade</label>
+                <select id="unit" class="form-control">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                </select>
+            </div>
+
+            <div class="col-md-2 d-flex align-items-end">
+                <button class="btn btn-primary w-100" onclick="loadTable()">Carregar</button>
+            </div>
+
         </div>
 
-        <div class="col-md-4">
-            <label>Disciplina</label>
-            <select id="discipline" class="form-control"></select>
-        </div>
+        {{-- 🔥 CABEÇALHO --}}
+        <div id="info-header" class="mb-3"></div>
 
-        <div class="col-md-2">
-            <label>Unidade</label>
-            <select id="unit" class="form-control">
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-            </select>
-        </div>
+        <form method="POST" action="{{ route('grades.store') }}">
+            @csrf
 
-        <div class="col-md-2 d-flex align-items-end">
-            <button class="btn btn-primary w-100" onclick="loadTable()">Carregar</button>
-        </div>
+            <input type="hidden" name="classroom_id" id="classroom_id">
+            <input type="hidden" name="discipline_id" id="discipline_id">
+            <input type="hidden" name="unit" id="unit_hidden">
+
+            <div id="table-container"></div>
+
+            <div class="mt-3 d-flex gap-2">
+                <button type="button" class="btn btn-success" id="saveBtn" style="display:none;" onclick="confirmSave()">
+                    💾 Salvar Notas
+                </button>
+
+                <button type="button" class="btn btn-secondary" onclick="printTable()">
+                    🖨️ Imprimir
+                </button>
+
+                <button type="button" class="btn btn-success" onclick="exportExcel()">
+                    📊 Exportar Excel
+                </button>
+                <a href="{{ route('gradesfullreport') }}" target="_blank" class="btn btn-dark">
+                    🖨️ Relatório Geral
+                </a>
+            </div>
+
+        </form>
 
     </div>
+    <style>
+        #table-container table tbody tr {
+            transition: all 0.15s ease;
+        }
 
-    {{-- 🔥 CABEÇALHO --}}
-    <div id="info-header" class="mb-3"></div>
+        #table-container table tbody tr:hover {
+            background: #f8f9fa;
+        }
 
-    <form method="POST" action="{{ route('grades.store') }}">
-        @csrf
+        #table-container table tbody tr:focus-within {
+            background: #e8f0fe !important;
+            box-shadow: inset 4px 0 0 #0d6efd;
+        }
 
-        <input type="hidden" name="classroom_id" id="classroom_id">
-        <input type="hidden" name="discipline_id" id="discipline_id">
-        <input type="hidden" name="unit" id="unit_hidden">
+        #table-container table tbody tr:focus-within td {
+            background: transparent !important;
+        }
 
-        <div id="table-container"></div>
+        .grade-input:focus {
+            border-color: #0d6efd;
+            box-shadow: none;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .total-aprovado {
+            background: #d1e7dd !important;
+            color: #0f5132;
+            font-weight: bold;
+        }
 
-        <div class="mt-3 d-flex gap-2">
-            <button type="button" class="btn btn-success" id="saveBtn" style="display:none;" onclick="confirmSave()">
-                💾 Salvar Notas
-            </button>
+        .total-reprovado {
+            background: #f8d7da !important;
+            color: #842029;
+            font-weight: bold;
+        }
 
-            <button type="button" class="btn btn-secondary" onclick="printTable()">
-                🖨️ Imprimir
-            </button>
+        .total-recuperacao {
+            background: #fff3cd !important;
+            color: #664d03;
+            font-weight: bold;
+        }
+    </style>
+    <script>
+        document.addEventListener('wheel', function(e) {
 
-            <button type="button" class="btn btn-success" onclick="exportExcel()">
-                📊 Exportar Excel
-            </button>
-        </div>
+            if (document.activeElement.classList.contains('grade-input')) {
+                document.activeElement.blur();
+            }
 
-    </form>
-
-</div>
-<style>
-    #table-container table tbody tr {
-        transition: all 0.15s ease;
-    }
-
-    #table-container table tbody tr:hover {
-        background: #f8f9fa;
-    }
-
-    #table-container table tbody tr:focus-within {
-        background: #e8f0fe !important;
-        box-shadow: inset 4px 0 0 #0d6efd;
-    }
-
-    #table-container table tbody tr:focus-within td {
-        background: transparent !important;
-    }
-
-    .grade-input:focus {
-        border-color: #0d6efd;
-        box-shadow: none;
-    }
-</style>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<style>
-    .total-aprovado {
-        background: #d1e7dd !important;
-        color: #0f5132;
-        font-weight: bold;
-    }
-
-    .total-reprovado {
-        background: #f8d7da !important;
-        color: #842029;
-        font-weight: bold;
-    }
-
-    .total-recuperacao {
-        background: #fff3cd !important;
-        color: #664d03;
-        font-weight: bold;
-    }
-</style>
-<script>
-    document.addEventListener('wheel', function (e) {
-
-    if (document.activeElement.classList.contains('grade-input')) {
-        document.activeElement.blur();
-    }
-
-}, { passive: true });
-    document.addEventListener('focusin', function (e) {
-
-    if (!e.target.classList.contains('grade-input')) return;
-
-    const input = e.target;
-
-    if (input.value == "0") {
-        input.value = ""; // limpa o zero automaticamente
-    }
-
-});
-// ===============================
-// CARREGAR DISCIPLINAS
-// ===============================
-document.getElementById('classroom').addEventListener('change', function () {
-
-    const classroomId = this.value;
-    const disciplineSelect = document.getElementById('discipline');
-
-    disciplineSelect.innerHTML = '<option value="">Selecione</option>';
-
-    if (!classroomId) return;
-
-    disciplineSelect.innerHTML = '<option>Carregando...</option>';
-
-    fetch(`/classrooms/${classroomId}/disciplines`)
-        .then(res => res.json())
-        .then(data => {
-
-            let options = '<option value="">Selecione</option>';
-
-            data.forEach(d => {
-                options += `<option value="${d.id}">${d.name}</option>`;
-            });
-
-            disciplineSelect.innerHTML = options;
-        })
-        .catch(() => {
-            disciplineSelect.innerHTML = '<option>Erro ao carregar</option>';
-            Swal.fire('Erro!', 'Não foi possível carregar disciplinas.', 'error');
+        }, {
+            passive: true
         });
-});
+        document.addEventListener('focusin', function(e) {
+
+            if (!e.target.classList.contains('grade-input')) return;
+
+            const input = e.target;
+
+            if (input.value == "0") {
+                input.value = ""; // limpa o zero automaticamente
+            }
+
+        });
+        // ===============================
+        // CARREGAR DISCIPLINAS
+        // ===============================
+        document.getElementById('classroom').addEventListener('change', function() {
+
+            const classroomId = this.value;
+            const disciplineSelect = document.getElementById('discipline');
+
+            disciplineSelect.innerHTML = '<option value="">Selecione</option>';
+
+            if (!classroomId) return;
+
+            disciplineSelect.innerHTML = '<option>Carregando...</option>';
+
+            fetch(`/classrooms/${classroomId}/disciplines`)
+                .then(res => res.json())
+                .then(data => {
+
+                    let options = '<option value="">Selecione</option>';
+
+                    data.forEach(d => {
+                        options += `<option value="${d.id}">${d.name}</option>`;
+                    });
+
+                    disciplineSelect.innerHTML = options;
+                })
+                .catch(() => {
+                    disciplineSelect.innerHTML = '<option>Erro ao carregar</option>';
+                    Swal.fire('Erro!', 'Não foi possível carregar disciplinas.', 'error');
+                });
+        });
 
 
-// ===============================
-// CARREGAR TABELA + CABEÇALHO
-// ===============================
-function loadTable() {
+        // ===============================
+        // CARREGAR TABELA + CABEÇALHO
+        // ===============================
+        function loadTable() {
 
-    const classroomSelect = document.getElementById('classroom');
-    const disciplineSelect = document.getElementById('discipline');
-    const unit = document.getElementById('unit').value;
+            const classroomSelect = document.getElementById('classroom');
+            const disciplineSelect = document.getElementById('discipline');
+            const unit = document.getElementById('unit').value;
 
-    const classroom = classroomSelect.value;
-    const discipline = disciplineSelect.value;
+            const classroom = classroomSelect.value;
+            const discipline = disciplineSelect.value;
 
-    if (!classroom || !discipline || !unit) {
-        Swal.fire('Atenção', 'Preencha turma, disciplina e unidade.', 'warning');
-        return;
-    }
+            if (!classroom || !discipline || !unit) {
+                Swal.fire('Atenção', 'Preencha turma, disciplina e unidade.', 'warning');
+                return;
+            }
 
-    document.getElementById('classroom_id').value = classroom;
-    document.getElementById('discipline_id').value = discipline;
-    document.getElementById('unit_hidden').value = unit;
+            document.getElementById('classroom_id').value = classroom;
+            document.getElementById('discipline_id').value = discipline;
+            document.getElementById('unit_hidden').value = unit;
 
-    const classroomText = classroomSelect.options[classroomSelect.selectedIndex].text;
-    const disciplineText = disciplineSelect.options[disciplineSelect.selectedIndex].text;
-    const period = classroomSelect.options[classroomSelect.selectedIndex].getAttribute('data-period') || '-';
-    const year = new Date().getFullYear();
+            const classroomText = classroomSelect.options[classroomSelect.selectedIndex].text;
+            const disciplineText = disciplineSelect.options[disciplineSelect.selectedIndex].text;
+            const period = classroomSelect.options[classroomSelect.selectedIndex].getAttribute('data-period') || '-';
+            const year = new Date().getFullYear();
 
-    // 🔥 HEADER
-    document.getElementById('info-header').innerHTML = `
+            // 🔥 HEADER
+            document.getElementById('info-header').innerHTML = `
         <div class="card shadow-sm">
             <div class="card-body">
                 <strong>Turma:</strong> ${classroomText} |
@@ -205,43 +209,43 @@ function loadTable() {
         </div>
     `;
 
-    fetch(`/grades/data?classroom_id=${classroom}&discipline_id=${discipline}&unit=${unit}`)
-        .then(res => res.json())
-        .then(data => {
+            fetch(`/grades/data?classroom_id=${classroom}&discipline_id=${discipline}&unit=${unit}`)
+                .then(res => res.json())
+                .then(data => {
 
-            const students = data.students;
-            const evaluations = data.evaluations;
-            const grades = data.grades || [];
+                    const students = data.students;
+                    const evaluations = data.evaluations;
+                    const grades = data.grades || [];
 
-            let html = `<table class="table table-bordered mt-3">
+                    let html = `<table class="table table-bordered mt-3">
                 <thead>
                     <tr>
                         <th>Aluno</th>`;
 
-            evaluations.forEach(ev => {
-                html += `<th>${ev.name} (${ev.value})</th>`;
-            });
+                    evaluations.forEach(ev => {
+                        html += `<th>${ev.name} (${ev.value})</th>`;
+                    });
 
-            html += `<th>Total</th></tr></thead><tbody>`;
+                    html += `<th>Total</th></tr></thead><tbody>`;
 
-            students.forEach(st => {
+                    students.forEach(st => {
 
-                let total = 0;
+                        let total = 0;
 
-                html += `<tr><td>${st.name}</td>`;
+                        html += `<tr><td>${st.name}</td>`;
 
-                evaluations.forEach(ev => {
+                        evaluations.forEach(ev => {
 
-                    const grade = grades.find(g =>
-                        g.student_id == st.id &&
-                        g.evaluation_id == ev.id
-                    );
+                            const grade = grades.find(g =>
+                                g.student_id == st.id &&
+                                g.evaluation_id == ev.id
+                            );
 
-                    const value = grade ? grade.value : 0;
+                            const value = grade ? grade.value : 0;
 
-                    total += parseFloat(value);
+                            total += parseFloat(value);
 
-                    html += `
+                            html += `
                     <td>
                         <input type="number"
                                step="0.1"
@@ -250,125 +254,127 @@ function loadTable() {
                                value="${value}"
                                oninput="calcRow(this)">
                     </td>`;
+                        });
+
+                        let totalClass = '';
+
+                        if (total >= 5) {
+                            totalClass = 'total-aprovado';
+                        } else if (total >= 3) {
+                            totalClass = 'total-recuperacao';
+                        } else {
+                            totalClass = 'total-reprovado';
+                        }
+
+                        html += `<td class="total ${totalClass}">${total.toFixed(1)}</td></tr>`;
+                    });
+
+                    html += `</tbody></table>`;
+
+                    document.getElementById('table-container').innerHTML = html;
+                    document.getElementById('saveBtn').style.display = 'block';
                 });
+        }
 
-                let totalClass = '';
 
-if (total >= 5) {
-    totalClass = 'total-aprovado';
-} else if (total >= 3) {
-    totalClass = 'total-recuperacao';
-} else {
-    totalClass = 'total-reprovado';
-}
+        // ===============================
+        // SOMA
+        // ===============================
+        function calcRow(input) {
 
-html += `<td class="total ${totalClass}">${total.toFixed(1)}</td></tr>`;
+            const row = input.closest('tr');
+            const inputs = row.querySelectorAll('.grade-input');
+
+            let total = 0;
+
+            inputs.forEach(i => {
+                total += parseFloat(i.value || 0);
             });
 
-            html += `</tbody></table>`;
+            const totalCell = row.querySelector('.total');
 
-            document.getElementById('table-container').innerHTML = html;
-            document.getElementById('saveBtn').style.display = 'block';
-        });
-}
+            totalCell.innerText = total.toFixed(1);
 
+            // remove classes antigas
+            totalCell.classList.remove(
+                'total-aprovado',
+                'total-recuperacao',
+                'total-reprovado'
+            );
 
-// ===============================
-// SOMA
-// ===============================
-function calcRow(input) {
+            // adiciona nova classe
+            if (total >= 5) {
+                totalCell.classList.add('total-aprovado');
 
-    const row = input.closest('tr');
-    const inputs = row.querySelectorAll('.grade-input');
+            } else if (total >= 3) {
+                totalCell.classList.add('total-recuperacao');
 
-    let total = 0;
-
-    inputs.forEach(i => {
-        total += parseFloat(i.value || 0);
-    });
-
-    const totalCell = row.querySelector('.total');
-
-    totalCell.innerText = total.toFixed(1);
-
-    // remove classes antigas
-    totalCell.classList.remove(
-        'total-aprovado',
-        'total-recuperacao',
-        'total-reprovado'
-    );
-
-    // adiciona nova classe
-    if (total >= 5) {
-        totalCell.classList.add('total-aprovado');
-
-    } else if (total >= 3) {
-        totalCell.classList.add('total-recuperacao');
-
-    } else {
-        totalCell.classList.add('total-reprovado');
-    }
-}
+            } else {
+                totalCell.classList.add('total-reprovado');
+            }
+        }
 
 
-// ===============================
-// CONFIRMAR SENHA
-// ===============================
-function confirmSave() {
+        // ===============================
+        // CONFIRMAR SENHA
+        // ===============================
+        function confirmSave() {
 
-    Swal.fire({
-        title: 'Digite sua senha',
-        input: 'password',
-        showCancelButton: true,
-        preConfirm: (password) => {
+            Swal.fire({
+                title: 'Digite sua senha',
+                input: 'password',
+                showCancelButton: true,
+                preConfirm: (password) => {
 
-            return fetch("{{ route('check.password') }}", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                },
-                body: JSON.stringify({ password })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (!data.valid) throw new Error('Senha incorreta');
-            })
-            .catch(err => {
-                Swal.showValidationMessage(err.message);
+                    return fetch("{{ route('check.password') }}", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                            },
+                            body: JSON.stringify({
+                                password
+                            })
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (!data.valid) throw new Error('Senha incorreta');
+                        })
+                        .catch(err => {
+                            Swal.showValidationMessage(err.message);
+                        });
+                }
+            }).then(result => {
+                if (result.isConfirmed) {
+                    document.querySelector('form').submit();
+                }
             });
         }
-    }).then(result => {
-        if (result.isConfirmed) {
-            document.querySelector('form').submit();
-        }
-    });
-}
 
 
-// ===============================
-// IMPRIMIR COM CABEÇALHO
-// ===============================
-function printTable() {
+        // ===============================
+        // IMPRIMIR COM CABEÇALHO
+        // ===============================
+        function printTable() {
 
-    const table = document.querySelector("#table-container table");
-    const header = document.getElementById('info-header').innerText;
+            const table = document.querySelector("#table-container table");
+            const header = document.getElementById('info-header').innerText;
 
-    if (!table) {
-        Swal.fire('Atenção', 'Carregue a tabela.', 'warning');
-        return;
-    }
+            if (!table) {
+                Swal.fire('Atenção', 'Carregue a tabela.', 'warning');
+                return;
+            }
 
-    let clone = table.cloneNode(true);
+            let clone = table.cloneNode(true);
 
-    // remove inputs
-    clone.querySelectorAll('input').forEach(input => {
-        input.parentElement.innerHTML = input.value || '0';
-    });
+            // remove inputs
+            clone.querySelectorAll('input').forEach(input => {
+                input.parentElement.innerHTML = input.value || '0';
+            });
 
-    const win = window.open('', '', 'width=1000,height=800');
+            const win = window.open('', '', 'width=1000,height=800');
 
-    win.document.write(`
+            win.document.write(`
         <html>
         <head>
             <meta charset="UTF-8">
@@ -445,30 +451,30 @@ function printTable() {
         </html>
     `);
 
-    win.document.close();
-    win.print();
-}
-// ===============================
-// EXPORTAR EXCEL COM CABEÇALHO
-// ===============================
-function exportExcel() {
+            win.document.close();
+            win.print();
+        }
+        // ===============================
+        // EXPORTAR EXCEL COM CABEÇALHO
+        // ===============================
+        function exportExcel() {
 
-    const table = document.querySelector("#table-container table");
-    const header = document.getElementById('info-header').innerText;
+            const table = document.querySelector("#table-container table");
+            const header = document.getElementById('info-header').innerText;
 
-    if (!table) {
-        Swal.fire('Atenção', 'Carregue a tabela.', 'warning');
-        return;
-    }
+            if (!table) {
+                Swal.fire('Atenção', 'Carregue a tabela.', 'warning');
+                return;
+            }
 
-    let clone = table.cloneNode(true);
+            let clone = table.cloneNode(true);
 
-    // remove inputs
-    clone.querySelectorAll('input').forEach(input => {
-        input.parentElement.innerHTML = input.value || '0';
-    });
+            // remove inputs
+            clone.querySelectorAll('input').forEach(input => {
+                input.parentElement.innerHTML = input.value || '0';
+            });
 
-    let html = `
+            let html = `
         <meta charset="UTF-8">
 
         <table border="0">
@@ -490,19 +496,19 @@ function exportExcel() {
         ${clone.outerHTML}
     `;
 
-    // 🔥 BOM UTF-8 (RESOLVE ACENTUAÇÃO)
-    let blob = new Blob(
-        ["\ufeff", html],
-        { type: "application/vnd.ms-excel;charset=utf-8;" }
-    );
+            // 🔥 BOM UTF-8 (RESOLVE ACENTUAÇÃO)
+            let blob = new Blob(
+                ["\ufeff", html], {
+                    type: "application/vnd.ms-excel;charset=utf-8;"
+                }
+            );
 
-    let url = URL.createObjectURL(blob);
+            let url = URL.createObjectURL(blob);
 
-    let link = document.createElement('a');
-    link.href = url;
-    link.download = 'diario_notas.xls';
-    link.click();
-}
-</script>
-
+            let link = document.createElement('a');
+            link.href = url;
+            link.download = 'diario_notas.xls';
+            link.click();
+        }
+    </script>
 @endsection

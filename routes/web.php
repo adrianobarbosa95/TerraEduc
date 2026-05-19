@@ -74,6 +74,8 @@ Route::post('/evaluations/update-unit', [EvaluationController::class, 'updateUni
         ]);
     })->name('check.password');
 
+Route::get('/grades/full-report', [GradeController::class, 'fullReport'])
+    ->name('gradesfullreport');
     Route::get('/classrooms/{id}/disciplines', [GradeController::class, 'getDisciplines']);
     Route::get('/classrooms/{id}/data', [EvaluationController::class, 'getClassroomData']);
     Route::resource('evaluations', EvaluationController::class);
@@ -94,7 +96,6 @@ Route::post('/students/change-classroom', [StudentController::class, 'changeClas
     ->name('students.changeClassroom');
 Route::post('/students/bulk-delete', [StudentController::class, 'bulkDelete'])
     ->name('students.bulkDelete');
-
 
 
     
