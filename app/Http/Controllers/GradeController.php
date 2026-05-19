@@ -13,20 +13,30 @@ use Illuminate\Support\Facades\Auth;
 
 class GradeController extends Controller
 {
-
 public function fullReport()
 {
     $teacherId = Auth::id();
 
-    $classrooms = \App\Models\ClassRoom::whereHas('disciplines', function ($q) use ($teacherId) {
-    $q->where('user_id', $teacherId);
-})->with('disciplines')->get();
+    $classrooms = \App\Models\ClassRoom::whereHas(
+        'disciplines',
+        function ($q) use ($teacherId) {
+
+            $q->where('user_id', $teacherId);
+        }
+    )
+    ->with([
+        'disciplines',
+        'students'
+    ])
+    ->get();
 
     $report = [];
 
     foreach ($classrooms as $classroom) {
 
-        $disciplines = $classroom->disciplines;
+        $disciplines = $classroom->disciplines
+            ->unique('id')
+            ->values();
 
         $disciplineData = [];
 
@@ -35,7 +45,10 @@ public function fullReport()
             $evaluations = \App\Models\Evaluation::where(
                 'discipline_id',
                 $discipline->id
-            )->get();
+            )
+            ->distinct()
+            ->orderBy('id')
+            ->get();
 
             $students = $classroom->students;
 
