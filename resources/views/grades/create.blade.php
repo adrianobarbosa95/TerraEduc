@@ -70,7 +70,29 @@
     </form>
 
 </div>
+<style>
+    #table-container table tbody tr {
+        transition: all 0.15s ease;
+    }
 
+    #table-container table tbody tr:hover {
+        background: #f8f9fa;
+    }
+
+    #table-container table tbody tr:focus-within {
+        background: #e8f0fe !important;
+        box-shadow: inset 4px 0 0 #0d6efd;
+    }
+
+    #table-container table tbody tr:focus-within td {
+        background: transparent !important;
+    }
+
+    .grade-input:focus {
+        border-color: #0d6efd;
+        box-shadow: none;
+    }
+</style>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
