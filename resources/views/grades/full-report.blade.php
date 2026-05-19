@@ -3,15 +3,7 @@
 @section('content')
 
 <style>
-.mobile-table{
-    width:100%;
-    overflow-x:auto;
-    -webkit-overflow-scrolling:touch;
-}
 
-.mobile-table table{
-    min-width:700px;
-}
     body{
         background:#f4f6f9;
     }
@@ -40,46 +32,47 @@
         border-radius:18px;
         overflow:hidden;
         box-shadow:0 2px 12px rgba(0,0,0,0.05);
-        margin-bottom:25px;
+        margin-bottom:35px;
         background:white;
     }
 
     .report-header{
         background:linear-gradient(135deg,#2563eb,#1d4ed8);
         color:white;
-        padding:14px 18px;
+        padding:22px;
     }
 
     .report-header h3{
         margin:0;
-        font-size:19px;
+        font-size:24px;
         font-weight:700;
     }
 
     .report-meta{
-        margin-top:5px;
-        font-size:12px;
+        margin-top:10px;
+        font-size:14px;
         opacity:0.95;
     }
 
     .discipline-section{
-        margin-top:18px;
+        margin-top:25px;
     }
 
     .discipline-title{
         background:#eff6ff;
         border-left:5px solid #2563eb;
-        padding:10px 14px;
+        padding:12px 15px;
         border-radius:8px;
-        font-size:16px;
+        font-size:18px;
         font-weight:700;
         color:#1e3a8a;
-        margin-bottom:10px;
+        margin-bottom:15px;
     }
 
     .table-report{
-        font-size:11px;
+        font-size:12px;
         margin-bottom:0;
+        min-width:900px;
     }
 
     .table-report thead th{
@@ -87,43 +80,43 @@
         color:white;
         text-align:center;
         vertical-align:middle;
-        padding:6px;
+        padding:8px;
         border-color:#1e293b;
         white-space:nowrap;
     }
 
     .table-report tbody td{
         vertical-align:middle;
-        padding:4px;
+        padding:6px;
     }
 
     .student-col{
-        min-width:220px;
+        min-width:260px;
         font-weight:600;
         background:#fafafa;
     }
 
     .grade-col{
         text-align:center;
-        width:60px;
+        width:70px;
     }
 
     .evaluation-name{
-        font-size:11px;
+        font-size:12px;
         font-weight:700;
     }
 
     .evaluation-value{
-        font-size:9px;
+        font-size:10px;
         opacity:0.85;
         margin-top:2px;
     }
 
     .total-col{
-        width:70px;
+        width:90px;
         text-align:center;
         font-weight:700;
-        font-size:12px;
+        font-size:13px;
     }
 
     .approved{
@@ -145,94 +138,71 @@
         display:flex;
         gap:15px;
         flex-wrap:wrap;
-        margin-top:12px;
-        margin-bottom:10px;
+        margin-top:15px;
     }
 
     .legend-item{
         display:flex;
         align-items:center;
         gap:6px;
-        font-size:11px;
+        font-size:12px;
     }
 
     .legend-color{
-        width:14px;
-        height:14px;
+        width:16px;
+        height:16px;
         border-radius:4px;
     }
 
     .footer-info{
-        margin-top:15px;
-        font-size:11px;
+        margin-top:20px;
+        font-size:12px;
         color:#64748b;
         text-align:right;
     }
 
     .table-responsive{
+        width:100%;
+        overflow-x:auto;
+        overflow-y:hidden;
+        -webkit-overflow-scrolling:touch;
         border-radius:12px;
-        overflow:hidden;
+        border:1px solid #dee2e6;
+        background:white;
+    }
+
+    .table-responsive::-webkit-scrollbar{
+        height:8px;
+    }
+
+    .table-responsive::-webkit-scrollbar-thumb{
+        background:#cbd5e1;
+        border-radius:20px;
     }
 
     .table-report tbody tr:hover{
         background:#f8fafc;
     }
-    @media (max-width: 768px){
 
-    .page-title{
-        font-size:22px;
-    }
+    @media(max-width:768px){
 
-    .page-subtitle{
-        font-size:13px;
-    }
+        .page-title{
+            font-size:22px;
+        }
 
-    .report-header h3{
-        font-size:16px;
-    }
+        .report-header h3{
+            font-size:18px;
+        }
 
-    .report-meta{
-        font-size:11px;
-    }
+        .student-col{
+            min-width:180px;
+        }
 
-    .discipline-title{
-        font-size:14px;
-        padding:8px 10px;
-    }
+        .table-report{
+            font-size:11px;
+        }
 
-    .table-report{
-        font-size:10px;
     }
-
-    .student-col{
-        min-width:170px;
-        font-size:10px;
-    }
-
-    .grade-col{
-        width:55px;
-    }
-
-    .total-col{
-        width:60px;
-    }
-
-    .report-toolbar{
-        flex-direction:column;
-    }
-
-    .report-toolbar .btn{
-        width:100%;
-    }
-
-    .legend{
-        gap:8px;
-    }
-
-    .legend-item{
-        font-size:10px;
-    }
-}
 
     @media print {
 
@@ -244,7 +214,7 @@
         .sidebar,
         footer,
         .report-toolbar,
-        .no-print{
+        form{
             display:none !important;
         }
 
@@ -257,16 +227,37 @@
         .report-card{
             box-shadow:none !important;
             border:none !important;
-            margin-bottom:12px !important;
-            break-inside:avoid;
+            margin-bottom:15px !important;
+            page-break-before:always;
+            break-before:page;
+        }
+
+        .report-card:first-child{
+            page-break-before:auto;
+            break-before:auto;
         }
 
         .report-header{
             background:#1d4ed8 !important;
             color:white !important;
+            padding:12px 15px !important;
+
             -webkit-print-color-adjust:exact;
             print-color-adjust:exact;
-            padding:10px 14px !important;
+        }
+
+        .report-header h3{
+            font-size:18px !important;
+        }
+
+        .report-meta{
+            font-size:11px !important;
+        }
+
+        .discipline-title{
+            padding:8px 10px !important;
+            font-size:15px !important;
+            margin-bottom:8px !important;
         }
 
         .approved,
@@ -278,6 +269,7 @@
 
         .table-report{
             font-size:9px !important;
+            min-width:100% !important;
         }
 
         .table-report th,
@@ -289,26 +281,25 @@
             min-width:150px !important;
         }
 
-        .discipline-title{
-            padding:6px 10px !important;
-            font-size:13px !important;
-            margin-bottom:6px !important;
-        }
-
-        .report-header h3{
-            font-size:16px !important;
-        }
-
-        .report-meta{
-            font-size:10px !important;
-        }
-
-        .footer-info{
+        .evaluation-name{
             font-size:9px !important;
-            margin-top:8px !important;
+        }
+
+        .evaluation-value{
+            font-size:8px !important;
+        }
+
+        .total-col{
+            width:60px !important;
+        }
+
+        .table-responsive{
+            overflow:visible !important;
+            border:none !important;
         }
 
         table{
+            width:100% !important;
             page-break-inside:auto;
         }
 
@@ -321,15 +312,6 @@
             display:table-header-group;
         }
 
-        .discipline-section{
-            break-inside:avoid;
-            margin-top:10px !important;
-        }
-
-        @page{
-            size:A4 portrait;
-            margin:10mm;
-        }
     }
 
 </style>
@@ -352,41 +334,45 @@
 
     </div>
 
-    <div class="row mb-4 no-print">
+    <form method="GET" action="{{ route('gradesfullreport') }}" class="mb-4">
 
-        <div class="col-md-3">
+        <div class="row align-items-end">
 
-            <label class="form-label fw-bold">
-                Unidade
-            </label>
+            <div class="col-md-3 mb-2">
 
-            <select id="unitFilter" class="form-control">
+                <label class="form-label fw-bold">
+                    Unidade
+                </label>
 
-                <option value="1" {{ request('unit') == 1 ? 'selected' : '' }}>
-                    Unidade 1
-                </option>
+                <select name="unit" class="form-control">
 
-                <option value="2" {{ request('unit') == 2 ? 'selected' : '' }}>
-                    Unidade 2
-                </option>
+                    <option value="1" {{ request('unit') == 1 ? 'selected' : '' }}>
+                        Unidade 1
+                    </option>
 
-                <option value="3" {{ request('unit') == 3 ? 'selected' : '' }}>
-                    Unidade 3
-                </option>
+                    <option value="2" {{ request('unit') == 2 ? 'selected' : '' }}>
+                        Unidade 2
+                    </option>
 
-            </select>
+                    <option value="3" {{ request('unit') == 3 ? 'selected' : '' }}>
+                        Unidade 3
+                    </option>
+
+                </select>
+
+            </div>
+
+            <div class="col-md-2 mb-2">
+
+                <button class="btn btn-primary w-100">
+                    Filtrar
+                </button>
+
+            </div>
 
         </div>
 
-        <div class="col-md-2 d-flex align-items-end">
-
-            <button class="btn btn-primary w-100" onclick="filterUnit()">
-                Filtrar
-            </button>
-
-        </div>
-
-    </div>
+    </form>
 
     <div class="report-toolbar">
 
@@ -430,7 +416,7 @@
 
             </div>
 
-            <div class="card-body p-3">
+            <div class="card-body p-4">
 
                 <div class="legend">
 
@@ -446,7 +432,7 @@
 
                     <div class="legend-item">
                         <div class="legend-color failed"></div>
-                        Reprovado (< 3.0)
+                        Reprovado (&lt; 3.0)
                     </div>
 
                 </div>
@@ -459,8 +445,8 @@
                             📚 {{ $disc['discipline']->name }}
                         </div>
 
-                        
-<div class="table-responsive mobile-table">
+                        <div class="table-responsive">
+
                             <table class="table table-bordered table-report">
 
                                 <thead>
@@ -525,7 +511,9 @@
                                                 @endphp
 
                                                 <td class="grade-col">
+
                                                     {{ number_format($value,1) }}
+
                                                 </td>
 
                                             @endforeach
@@ -561,7 +549,9 @@
                 @endforeach
 
                 <div class="footer-info">
+
                     Relatório gerado automaticamente pelo sistema TerraEduc
+
                 </div>
 
             </div>
@@ -571,17 +561,5 @@
     @endforeach
 
 </div>
-
-<script>
-
-function filterUnit() {
-
-    const unit = document.getElementById('unitFilter').value;
-
-    window.location.href =
-        `/grades/full-report?unit=${unit}`;
-}
-
-</script>
 
 @endsection
