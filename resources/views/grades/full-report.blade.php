@@ -82,7 +82,12 @@
         vertical-align:middle;
         padding:8px;
         border-color:#1e293b;
-        white-space:nowrap;
+
+        white-space:normal;
+        word-break:break-word;
+
+        min-width:90px;
+        max-width:120px;
     }
 
     .table-report tbody td{
@@ -102,8 +107,11 @@
     }
 
     .evaluation-name{
-        font-size:12px;
+        font-size:11px;
         font-weight:700;
+        line-height:1.2;
+        white-space:normal;
+        word-break:break-word;
     }
 
     .evaluation-value{
@@ -228,6 +236,7 @@
             box-shadow:none !important;
             border:none !important;
             margin-bottom:15px !important;
+
             page-break-before:always;
             break-before:page;
         }
@@ -277,12 +286,18 @@
             padding:3px !important;
         }
 
+        .table-report thead th{
+            min-width:70px !important;
+            max-width:90px !important;
+        }
+
         .student-col{
             min-width:150px !important;
         }
 
         .evaluation-name{
             font-size:9px !important;
+            line-height:1.1 !important;
         }
 
         .evaluation-value{
