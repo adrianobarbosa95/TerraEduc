@@ -32,45 +32,45 @@
         border-radius:18px;
         overflow:hidden;
         box-shadow:0 2px 12px rgba(0,0,0,0.05);
-        margin-bottom:35px;
+        margin-bottom:25px;
         background:white;
     }
 
     .report-header{
         background:linear-gradient(135deg,#2563eb,#1d4ed8);
         color:white;
-        padding:22px;
+        padding:14px 18px;
     }
 
     .report-header h3{
         margin:0;
-        font-size:24px;
+        font-size:19px;
         font-weight:700;
     }
 
     .report-meta{
-        margin-top:10px;
-        font-size:14px;
+        margin-top:5px;
+        font-size:12px;
         opacity:0.95;
     }
 
     .discipline-section{
-        margin-top:25px;
+        margin-top:18px;
     }
 
     .discipline-title{
         background:#eff6ff;
         border-left:5px solid #2563eb;
-        padding:12px 15px;
+        padding:10px 14px;
         border-radius:8px;
-        font-size:18px;
+        font-size:16px;
         font-weight:700;
         color:#1e3a8a;
-        margin-bottom:15px;
+        margin-bottom:10px;
     }
 
     .table-report{
-        font-size:12px;
+        font-size:11px;
         margin-bottom:0;
     }
 
@@ -79,43 +79,43 @@
         color:white;
         text-align:center;
         vertical-align:middle;
-        padding:8px;
+        padding:6px;
         border-color:#1e293b;
         white-space:nowrap;
     }
 
     .table-report tbody td{
         vertical-align:middle;
-        padding:6px;
+        padding:4px;
     }
 
     .student-col{
-        min-width:260px;
+        min-width:220px;
         font-weight:600;
         background:#fafafa;
     }
 
     .grade-col{
         text-align:center;
-        width:70px;
+        width:60px;
     }
 
     .evaluation-name{
-        font-size:12px;
+        font-size:11px;
         font-weight:700;
     }
 
     .evaluation-value{
-        font-size:10px;
+        font-size:9px;
         opacity:0.85;
         margin-top:2px;
     }
 
     .total-col{
-        width:90px;
+        width:70px;
         text-align:center;
         font-weight:700;
-        font-size:13px;
+        font-size:12px;
     }
 
     .approved{
@@ -137,25 +137,26 @@
         display:flex;
         gap:15px;
         flex-wrap:wrap;
-        margin-top:15px;
+        margin-top:12px;
+        margin-bottom:10px;
     }
 
     .legend-item{
         display:flex;
         align-items:center;
         gap:6px;
-        font-size:12px;
+        font-size:11px;
     }
 
     .legend-color{
-        width:16px;
-        height:16px;
+        width:14px;
+        height:14px;
         border-radius:4px;
     }
 
     .footer-info{
-        margin-top:20px;
-        font-size:12px;
+        margin-top:15px;
+        font-size:11px;
         color:#64748b;
         text-align:right;
     }
@@ -178,7 +179,8 @@
         .navbar,
         .sidebar,
         footer,
-        .report-toolbar{
+        .report-toolbar,
+        .no-print{
             display:none !important;
         }
 
@@ -191,7 +193,8 @@
         .report-card{
             box-shadow:none !important;
             border:none !important;
-            margin-bottom:20px;
+            margin-bottom:12px !important;
+            break-inside:avoid;
         }
 
         .report-header{
@@ -199,6 +202,7 @@
             color:white !important;
             -webkit-print-color-adjust:exact;
             print-color-adjust:exact;
+            padding:10px 14px !important;
         }
 
         .approved,
@@ -209,12 +213,35 @@
         }
 
         .table-report{
-            font-size:10px;
+            font-size:9px !important;
         }
 
         .table-report th,
         .table-report td{
-            padding:4px !important;
+            padding:3px !important;
+        }
+
+        .student-col{
+            min-width:150px !important;
+        }
+
+        .discipline-title{
+            padding:6px 10px !important;
+            font-size:13px !important;
+            margin-bottom:6px !important;
+        }
+
+        .report-header h3{
+            font-size:16px !important;
+        }
+
+        .report-meta{
+            font-size:10px !important;
+        }
+
+        .footer-info{
+            font-size:9px !important;
+            margin-top:8px !important;
         }
 
         table{
@@ -230,24 +257,14 @@
             display:table-header-group;
         }
 
-        tfoot{
-            display:table-footer-group;
-        }
-
         .discipline-section{
             break-inside:avoid;
+            margin-top:10px !important;
         }
 
-        .report-card{
-            break-inside:avoid;
-        }
-
-        .page-break{
-            page-break-after:always;
-        }
-
-        .student-col{
-            min-width:180px;
+        @page{
+            size:A4 portrait;
+            margin:10mm;
         }
     }
 
@@ -264,8 +281,44 @@
             </div>
 
             <div class="page-subtitle">
-                Visualização completa de todas as turmas e disciplinas
+                Visualização completa das turmas e disciplinas
             </div>
+
+        </div>
+
+    </div>
+
+    <div class="row mb-4 no-print">
+
+        <div class="col-md-3">
+
+            <label class="form-label fw-bold">
+                Unidade
+            </label>
+
+            <select id="unitFilter" class="form-control">
+
+                <option value="1" {{ request('unit') == 1 ? 'selected' : '' }}>
+                    Unidade 1
+                </option>
+
+                <option value="2" {{ request('unit') == 2 ? 'selected' : '' }}>
+                    Unidade 2
+                </option>
+
+                <option value="3" {{ request('unit') == 3 ? 'selected' : '' }}>
+                    Unidade 3
+                </option>
+
+            </select>
+
+        </div>
+
+        <div class="col-md-2 d-flex align-items-end">
+
+            <button class="btn btn-primary w-100" onclick="filterUnit()">
+                Filtrar
+            </button>
 
         </div>
 
@@ -301,6 +354,11 @@
 
                     &nbsp;&nbsp;|&nbsp;&nbsp;
 
+                    <strong>Unidade:</strong>
+                    {{ $unit }}
+
+                    &nbsp;&nbsp;|&nbsp;&nbsp;
+
                     <strong>Emitido em:</strong>
                     {{ now()->format('d/m/Y H:i') }}
 
@@ -308,7 +366,7 @@
 
             </div>
 
-            <div class="card-body p-4">
+            <div class="card-body p-3">
 
                 <div class="legend">
 
@@ -403,9 +461,7 @@
                                                 @endphp
 
                                                 <td class="grade-col">
-
                                                     {{ number_format($value,1) }}
-
                                                 </td>
 
                                             @endforeach
@@ -441,9 +497,7 @@
                 @endforeach
 
                 <div class="footer-info">
-
                     Relatório gerado automaticamente pelo sistema TerraEduc
-
                 </div>
 
             </div>
@@ -453,5 +507,17 @@
     @endforeach
 
 </div>
+
+<script>
+
+function filterUnit() {
+
+    const unit = document.getElementById('unitFilter').value;
+
+    window.location.href =
+        `/grades/full-report?unit=${unit}`;
+}
+
+</script>
 
 @endsection

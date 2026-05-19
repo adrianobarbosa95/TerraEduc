@@ -13,69 +13,71 @@ use Illuminate\Support\Facades\Auth;
 
 class GradeController extends Controller
 {
-    public function fullReport()
-    {
-        $teacherId = Auth::id();
+   public function fullReport(Request $request)
+{
+    $teacherId = Auth::id();
 
-        $classrooms = \App\Models\ClassRoom::whereHas(
-            'disciplines',
-            function ($q) use ($teacherId) {
+    $unit = $request->unit ?? 1;
 
-                $q->where('user_id', $teacherId);
-            }
-        )
-            ->with([
-                'disciplines',
-                'students'
-            ])
-            ->get();
+    $classrooms = \App\Models\ClassRoom::whereHas('disciplines', function ($q) use ($teacherId) {
 
-        $report = [];
+        $q->where('user_id', $teacherId);
 
-        foreach ($classrooms as $classroom) {
+    })->with('disciplines')->get();
 
-            $disciplines = $classroom->disciplines
-                ->unique('id')
-                ->values();
+    $report = [];
 
-            $disciplineData = [];
+    foreach ($classrooms as $classroom) {
 
-            foreach ($disciplines as $discipline) {
+        $disciplineData = [];
 
-                $evaluations = \App\Models\Evaluation::where(
+        foreach ($classroom->disciplines as $discipline) {
+
+            $evaluations = \App\Models\Evaluation::where(
                     'discipline_id',
                     $discipline->id
                 )
-                    ->where(
-                        'classroom_id',
-                        $classroom->id
-                    )
-                    ->orderBy('id')
-                    ->get();
+                ->where('classroom_id', $classroom->id)
+                ->where('unit', $unit)
+                ->get();
 
-                $students = $classroom->students;
-
-                $grades = \App\Models\Grade::whereIn(
-                    'evaluation_id',
-                    $evaluations->pluck('id')
-                )->get();
-
-                $disciplineData[] = [
-                    'discipline' => $discipline,
-                    'evaluations' => $evaluations,
-                    'students' => $students,
-                    'grades' => $grades,
-                ];
+            if ($evaluations->isEmpty()) {
+                continue;
             }
 
-            $report[] = [
-                'classroom' => $classroom,
-                'disciplines' => $disciplineData,
+            $students = $classroom->students;
+
+            $grades = \App\Models\Grade::whereIn(
+                'evaluation_id',
+                $evaluations->pluck('id')
+            )->get();
+
+            $disciplineData[] = [
+
+                'discipline' => $discipline,
+                'evaluations' => $evaluations,
+                'students' => $students,
+                'grades' => $grades,
+
             ];
         }
 
-        return view('grades.full-report', compact('report'));
+        if (!empty($disciplineData)) {
+
+            $report[] = [
+
+                'classroom' => $classroom,
+                'disciplines' => $disciplineData,
+
+            ];
+        }
     }
+
+    return view('grades.full-report', compact(
+        'report',
+        'unit'
+    ));
+}
     public function index()
     {
         // $grades = Grade::all();
