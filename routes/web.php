@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\StudentMovementController;
+use App\Http\Controllers\Teacher\ClassStudentsController;
 
 
     Route::get('/', function () {
@@ -64,6 +65,11 @@ Route::post('/evaluations/update-unit', [EvaluationController::class, 'updateUni
     // PROFESSOR
     Route::get('/professor/plan/{discipline}/{classroom}', [PlanController::class, 'teacher'])
         ->name('plans.teacher');
+
+    // Rota: listar alunos aprovados/recuperação por turma (Professor)
+    Route::get('/professor/classes/{class}/students', [ClassStudentsController::class, 'index'])
+        ->name('teacher.class_students');
+
     // SALVAR
     Route::post('/plans/store', [PlanController::class, 'store'])
         ->name('plans.store');
